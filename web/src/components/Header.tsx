@@ -4,13 +4,16 @@ import type { ClusterStatus } from "../types";
 interface Props {
   status: ClusterStatus | null;
   percent: number;
+  terminalCollapsed: boolean;
+  onToggleTerminal: () => void;
+  onOpenTour: () => void;
   onReset: () => void;
 }
 
-export function Header({ status, percent, onReset }: Props) {
+export function Header({ status, percent, terminalCollapsed, onToggleTerminal, onOpenTour, onReset }: Props) {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-800 bg-panel px-5" style={{ background: "var(--color-panel)" }}>
-      <div className="flex items-center gap-2.5">
+      <div data-tour="brand" className="flex items-center gap-2.5">
         <svg width="24" height="24" viewBox="0 0 32 32" className="text-pd-green">
           <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="2" />
           <polyline
@@ -54,6 +57,29 @@ export function Header({ status, percent, onReset }: Props) {
           </div>
           <span className="w-10 text-xs text-slate-400">{percent}%</span>
         </div>
+
+        <button
+          data-tour="terminal-toggle"
+          onClick={onToggleTerminal}
+          className={clsx(
+            "flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors",
+            terminalCollapsed
+              ? "border-slate-700 text-slate-400 hover:border-pd-green/50 hover:text-pd-green-light"
+              : "border-pd-green/50 bg-pd-green/10 text-pd-green-light",
+          )}
+          title="Toggle the embedded terminal"
+        >
+          <span aria-hidden>{"⌨"}</span> Terminal
+        </button>
+
+        <button
+          data-tour="help"
+          onClick={onOpenTour}
+          className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-700 text-xs text-slate-400 hover:border-pd-green/50 hover:text-pd-green-light"
+          title="Replay the guided tour"
+        >
+          ?
+        </button>
 
         <button
           onClick={onReset}

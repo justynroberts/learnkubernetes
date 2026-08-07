@@ -11,7 +11,7 @@ interface Props {
 
 export function Sidebar({ lessons, activeId, onSelect, progressFor, stepCounts }: Props) {
   return (
-    <nav className="h-full overflow-y-auto border-r border-slate-800 bg-panel/60 py-3" style={{ background: "var(--color-panel)" }}>
+    <nav data-tour="sidebar" className="h-full overflow-y-auto border-r border-slate-800 bg-panel/60 py-3" style={{ background: "var(--color-panel)" }}>
       {lessons.map((lesson) => {
         const total = stepCounts[lesson.id] ?? 0;
         const { done, complete } = progressFor(lesson.id, total);

@@ -9,11 +9,12 @@ const DEFAULT_HEIGHT = 340;
 
 interface Props {
   terminalRef: React.RefObject<TerminalHandle | null>;
+  collapsed: boolean;
+  onToggleCollapsed: () => void;
 }
 
-export function TerminalPanel({ terminalRef }: Props) {
+export function TerminalPanel({ terminalRef, collapsed, onToggleCollapsed }: Props) {
   const [height, setHeight] = useState(DEFAULT_HEIGHT);
-  const [collapsed, setCollapsed] = useState(false);
   const draggingRef = useRef(false);
 
   const onDragMove = useCallback((e: MouseEvent) => {
@@ -39,8 +40,6 @@ export function TerminalPanel({ terminalRef }: Props) {
 
   useEffect(() => () => onDragEnd(), [onDragEnd]);
 
-  const toggleCollapsed = () => setCollapsed((c) => !c);
-
   return (
     <motion.div
       className="relative shrink-0 border-t border-slate-800 bg-[#0b0e14]"
@@ -58,7 +57,7 @@ export function TerminalPanel({ terminalRef }: Props) {
 
       <div className="flex h-7 items-center justify-between border-b border-slate-800 px-3">
         <button
-          onClick={toggleCollapsed}
+          onClick={onToggleCollapsed}
           className="flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300"
         >
           <span className="h-2 w-2 rounded-full bg-emerald-500" />

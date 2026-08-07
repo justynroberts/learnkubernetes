@@ -7,12 +7,40 @@ import { Sidebar } from "./components/Sidebar";
 import { LessonView } from "./components/LessonView";
 import type { TerminalHandle } from "./components/Terminal";
 import { TerminalPanel } from "./components/TerminalPanel";
+import { Tour, type TourStep } from "./components/Tour";
+
+const TOUR_SEEN_KEY = "lk-tour-seen-v1";
+
+const TOUR_STEPS: TourStep[] = [
+  {
+    selector: '[data-tour="brand"]',
+    title: "Welcome to PagerDuty Kubernetes Academy",
+    body: "16 hands-on lessons, from cluster basics to deploying a real Runbook Automation runner. Every check runs against your actual cluster.",
+  },
+  {
+    selector: '[data-tour="sidebar"]',
+    title: "Your lessons",
+    body: "Work through these in order, or jump around. Progress is saved automatically in your browser.",
+  },
+  {
+    selector: '[data-tour="terminal-toggle"]',
+    title: "Your real terminal",
+    body: "This opens a real terminal wired to your local shell and cluster. Click \"Run\" on any command in a lesson to send it straight here.",
+  },
+  {
+    selector: '[data-tour="help"]',
+    title: "Need this again?",
+    body: "Click here any time to replay this tour.",
+  },
+];
 
 export default function App() {
   const [lessons, setLessons] = useState<LessonSummary[]>([]);
   const [activeId, setActiveId] = useState<string>();
   const [detailCache, setDetailCache] = useState<Record<string, LessonDetail>>({});
   const [status, setStatus] = useState<ClusterStatus | null>(null);
+  const [terminalCollapsed, setTerminalCollapsed] = useState(true);
+  const [tourActive, setTourActive] = useState(false);
 
   const { isStepDone, markStep, lessonProgress, reset } = useProgress();
   const termRef = useRef<TerminalHandle>(null);
@@ -25,6 +53,12 @@ export default function App() {
     api.status().then(setStatus);
     const poll = setInterval(() => api.status().then(setStatus), 15000);
     return () => clearInterval(poll);
+  }, []);
+
+  useEffect(() => {
+    if (localStorage.getItem(TOUR_SEEN_KEY)) return;
+    const t = setTimeout(() => setTourActive(true), 600);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -62,9 +96,21 @@ export default function App() {
     window.location.reload();
   }
 
+  function finishTour() {
+    setTourActive(false);
+    localStorage.setItem(TOUR_SEEN_KEY, "1");
+  }
+
   return (
     <div className="flex h-screen flex-col bg-grid">
-      <Header status={status} percent={overallPercent} onReset={handleReset} />
+      <Header
+        status={status}
+        percent={overallPercent}
+        terminalCollapsed={terminalCollapsed}
+        onToggleTerminal={() => setTerminalCollapsed((c) => !c)}
+        onOpenTour={() => setTourActive(true)}
+        onReset={handleReset}
+      />
       <div className="flex min-h-0 flex-1">
         <div className="w-64 shrink-0">
           <Sidebar
@@ -83,7 +129,10 @@ export default function App() {
                 lesson={activeLesson}
                 isStepDone={isStepDone}
                 markStep={markStep}
-                onRunInTerminal={(cmd) => termRef.current?.runCommand(cmd)}
+                onRunInTerminal={(cmd) => {
+                  setTerminalCollapsed(false);
+                  termRef.current?.runCommand(cmd);
+                }}
                 onNextLesson={() => nextLesson && setActiveId(nextLesson.id)}
                 hasNext={!!nextLesson}
                 allDone={activeLessonProgress.complete}
@@ -93,9 +142,15 @@ export default function App() {
             )}
           </div>
 
-          <TerminalPanel terminalRef={termRef} />
+          <TerminalPanel
+            terminalRef={termRef}
+            collapsed={terminalCollapsed}
+            onToggleCollapsed={() => setTerminalCollapsed((c) => !c)}
+          />
         </div>
       </div>
+
+      {tourActive && <Tour steps={TOUR_STEPS} onFinish={finishTour} />}
     </div>
   );
 }
