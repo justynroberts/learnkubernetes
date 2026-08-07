@@ -26,7 +26,18 @@ export interface QuizStep {
   explanation: string;
 }
 
-export type Step = TaskStep | QuizStep;
+export interface ManifestStep {
+  kind: "manifest";
+  id: string;
+  title: string;
+  instructions: string;
+  /** Default YAML shown in the editor — fully replaceable (e.g. paste one from elsewhere). */
+  template: string;
+  hint?: string;
+  check: () => Promise<CheckResult>;
+}
+
+export type Step = TaskStep | QuizStep | ManifestStep;
 
 export interface Lesson {
   id: string;
@@ -48,7 +59,8 @@ export interface LessonSummary {
 
 export type TaskStepDetail = Omit<TaskStep, "check">;
 export type QuizStepDetail = Omit<QuizStep, "correctIndex" | "explanation">;
-export type StepDetail = TaskStepDetail | QuizStepDetail;
+export type ManifestStepDetail = Omit<ManifestStep, "check">;
+export type StepDetail = TaskStepDetail | QuizStepDetail | ManifestStepDetail;
 
 export interface LessonDetail {
   id: string;
@@ -71,11 +83,11 @@ export function toDetail(l: Lesson): LessonDetail {
     concept: l.concept,
     intro: l.intro,
     steps: l.steps.map((step): StepDetail => {
-      if (step.kind === "task") {
-        const { check, ...rest } = step;
+      if (step.kind === "quiz") {
+        const { correctIndex, explanation, ...rest } = step;
         return rest;
       }
-      const { correctIndex, explanation, ...rest } = step;
+      const { check, ...rest } = step;
       return rest;
     }),
   };

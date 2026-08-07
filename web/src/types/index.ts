@@ -22,7 +22,16 @@ export interface QuizStepDetail {
   options: string[];
 }
 
-export type StepDetail = TaskStepDetail | QuizStepDetail;
+export interface ManifestStepDetail {
+  kind: "manifest";
+  id: string;
+  title: string;
+  instructions: string;
+  template: string;
+  hint?: string;
+}
+
+export type StepDetail = TaskStepDetail | QuizStepDetail | ManifestStepDetail;
 
 export interface LessonDetail {
   id: string;
@@ -36,6 +45,7 @@ export interface LessonDetail {
 export interface CheckResult {
   pass: boolean;
   message: string;
+  applyOutput?: string;
 }
 
 export interface ClusterStatus {

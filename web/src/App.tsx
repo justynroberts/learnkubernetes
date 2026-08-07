@@ -5,14 +5,14 @@ import { useProgress } from "./hooks/useProgress";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { LessonView } from "./components/LessonView";
-import { Terminal, type TerminalHandle } from "./components/Terminal";
+import type { TerminalHandle } from "./components/Terminal";
+import { TerminalPanel } from "./components/TerminalPanel";
 
 export default function App() {
   const [lessons, setLessons] = useState<LessonSummary[]>([]);
   const [activeId, setActiveId] = useState<string>();
   const [detailCache, setDetailCache] = useState<Record<string, LessonDetail>>({});
   const [status, setStatus] = useState<ClusterStatus | null>(null);
-  const [termHeight, setTermHeight] = useState(280);
 
   const { isStepDone, markStep, lessonProgress, reset } = useProgress();
   const termRef = useRef<TerminalHandle>(null);
@@ -93,28 +93,7 @@ export default function App() {
             )}
           </div>
 
-          <div
-            className="shrink-0 border-t border-slate-800 bg-[#0b0e14]"
-            style={{ height: termHeight }}
-          >
-            <div className="flex h-7 items-center justify-between border-b border-slate-800 px-3">
-              <div className="flex items-center gap-2 text-xs text-slate-500">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                terminal · your local shell, real cluster
-              </div>
-              <div className="flex gap-1 text-xs text-slate-600">
-                <button onClick={() => setTermHeight((h) => Math.max(160, h - 80))} className="px-1.5 hover:text-slate-300">
-                  −
-                </button>
-                <button onClick={() => setTermHeight((h) => Math.min(560, h + 80))} className="px-1.5 hover:text-slate-300">
-                  +
-                </button>
-              </div>
-            </div>
-            <div style={{ height: termHeight - 28 }}>
-              <Terminal ref={termRef} />
-            </div>
-          </div>
+          <TerminalPanel terminalRef={termRef} />
         </div>
       </div>
     </div>

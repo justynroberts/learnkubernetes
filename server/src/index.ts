@@ -4,7 +4,16 @@ import { createServer } from "node:http";
 import { WebSocketServer } from "ws";
 import { LESSONS, findLesson, findStep, toSummary, toDetail } from "./lessons/index.js";
 import { attachPty } from "./pty.js";
-import { clusterReachable, currentNodeInfo, ensureNamespace, ensureKubeContext, resetNamespace, NAMESPACE, KUBE_CONTEXT } from "./kube.js";
+import {
+  clusterReachable,
+  currentNodeInfo,
+  ensureNamespace,
+  ensureKubeContext,
+  resetNamespace,
+  applyManifest,
+  NAMESPACE,
+  KUBE_CONTEXT,
+} from "./kube.js";
 
 const PORT = Number(process.env.PORT ?? 4000);
 
@@ -48,6 +57,25 @@ app.post("/api/lessons/:id/steps/:stepId/answer", (req, res) => {
   if (typeof selectedIndex !== "number") return res.status(400).json({ error: "selectedIndex required" });
   const pass = selectedIndex === step.correctIndex;
   res.json({ pass, message: step.explanation });
+});
+
+app.post("/api/lessons/:id/steps/:stepId/apply", async (req, res) => {
+  const { lesson, step } = findStep(req.params.id, req.params.stepId);
+  if (!lesson || !step) return res.status(404).json({ error: "step not found" });
+  if (step.kind !== "manifest") return res.status(400).json({ error: "not a manifest step" });
+  const yaml = req.body?.yaml;
+  if (typeof yaml !== "string" || !yaml.trim()) return res.status(400).json({ error: "yaml required" });
+
+  const applied = await applyManifest(yaml);
+  if (applied.code !== 0) {
+    return res.json({ pass: false, message: applied.stderr.trim() || "kubectl apply failed.", applyOutput: applied.stderr });
+  }
+  try {
+    const result = await step.check();
+    res.json({ ...result, applyOutput: applied.stdout });
+  } catch (err: any) {
+    res.status(500).json({ pass: false, message: `Validator error: ${err?.message ?? err}`, applyOutput: applied.stdout });
+  }
 });
 
 app.post("/api/reset", async (_req, res) => {

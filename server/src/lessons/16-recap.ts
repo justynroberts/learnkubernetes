@@ -1,5 +1,5 @@
 import type { Lesson } from "./types.js";
-import { NAMESPACE, getResourceJson, namespaceExists } from "../kube.js";
+import { NAMESPACE, getResourceJson, listResourcesJson, namespaceExists } from "../kube.js";
 
 export const recap: Lesson = {
   id: "recap",
@@ -43,7 +43,12 @@ during this course is still healthy on your cluster.`,
         const runnerSecret = await getResourceJson<any>("secret", "runner-credentials");
         checks.push({ label: "runner-credentials Secret", ok: !!runnerSecret });
 
-        const runnerDep = await getResourceJson<any>("deployment", "runner");
+        const deps = await listResourcesJson<any>("deployments");
+        const runnerDep = deps.find((d) =>
+          (d.spec?.template?.spec?.containers ?? []).some(
+            (c: any) => typeof c.image === "string" && c.image.toLowerCase().includes("runner"),
+          ),
+        );
         checks.push({ label: "runner Deployment", ok: !!runnerDep && (runnerDep.status?.readyReplicas ?? 0) > 0 });
 
         const failed = checks.filter((c) => !c.ok).map((c) => c.label);

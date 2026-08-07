@@ -1,7 +1,19 @@
 import type { Lesson } from "./types.js";
-import { NAMESPACE, getResourceJson, listResourcesJson } from "../kube.js";
+import { NAMESPACE, RUNNER_IMAGE, getResourceJson, listResourcesJson } from "../kube.js";
 
-const RUNNER_IMAGE = "rundeckpro/runner:5.18-RBA-20251119-90ca10b-59d3aa7";
+function hasRunnerImage(container: any): boolean {
+  return typeof container?.image === "string" && container.image.toLowerCase().includes("runner");
+}
+
+async function findRunnerDeployment() {
+  const deps = await listResourcesJson<any>("deployments");
+  return deps.find((d) => (d.spec?.template?.spec?.containers ?? []).some(hasRunnerImage));
+}
+
+async function findRunnerPod() {
+  const pods = await listResourcesJson<any>("pods");
+  return pods.find((p) => (p.spec?.containers ?? []).some(hasRunnerImage));
+}
 
 export const runbookAutomation: Lesson = {
   id: "runbook-automation",
@@ -16,21 +28,19 @@ Automation instance, so it can reach systems the control plane itself can't — 
 the kind of workload that gets deployed to Kubernetes in the real world.
 
 This lesson deploys an actual Runner, using everything from this course: a
-**Secret** for its credentials, a **Deployment** to run it, and env vars sourced
-from that Secret. The final check confirms it's genuinely **Running and Ready** —
-not just that the YAML looks right.
+**Secret** for its credentials and a **Deployment** to run it. The final check
+confirms it's genuinely **Running and Ready** — not just that the YAML looks right.
 
 You'll need your own Runbook Automation instance for this one. In it, go to
 **Runner Management** and create a new Runner — it will give you a **Server URL**,
 a **Client ID**, and a **Token**. If you don't manage Runbook Automation yourself,
 ask whoever does to create a runner and share those three values with you.
 
-> **Apple Silicon note:** the current Runner image is only published for
-> \`linux/amd64\`. Rancher Desktop's default node on M-series Macs is \`arm64\`, so
-> the Deployment below may sit in \`ErrImagePull\`/\`ImagePullBackOff\` with "no
-> matching manifest" — that's this image, not your setup. Check with whoever
-> manages your Runbook Automation instance for an arm64-compatible tag, or run
-> this lesson against an amd64 host.
+> **Apple Silicon note:** as of this course's last update, the Runner image is
+> published for \`linux/amd64\` only, so it won't run as-is on Rancher Desktop's
+> \`arm64\` node on M-series Macs (you'll see \`ErrImagePull\`/"no matching
+> manifest"). Arm64 builds are expected soon — once available, just edit the
+> \`image:\` line in the manifest editor below to point at the new tag.
 `,
   steps: [
     {
@@ -58,23 +68,43 @@ Management page. Replace the placeholder values with your real ones.`,
       },
     },
     {
-      kind: "task",
+      kind: "manifest",
       id: "deploy-runner",
       title: "Deploy the Runner",
-      instructions: `Create a Deployment running the Runner image, then wire in the credentials Secret
-as environment variables — the same \`set env --from\` pattern from the Secrets
-lesson.`,
-      command: `kubectl create deployment runner --image=${RUNNER_IMAGE} -n ${NAMESPACE}
-kubectl set env deployment/runner --from=secret/runner-credentials -n ${NAMESPACE}`,
+      instructions: `Edit the Deployment manifest below to wire in your Secret, add a \`nodeSelector\`
+for your architecture, or anything else you need — or replace it entirely with a
+manifest copied straight from your Runbook Automation instance. Click **Apply**
+when it's ready.`,
+      hint: "Pasting a manifest from Runbook Automation? It's fine if it embeds credentials directly instead of using the Secret — this step just checks that a runner container exists.",
+      template: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: runner
+  labels:
+    app: runner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: runner
+  template:
+    metadata:
+      labels:
+        app: runner
+    spec:
+      containers:
+        - name: runner
+          image: ${RUNNER_IMAGE}
+          envFrom:
+            - secretRef:
+                name: runner-credentials
+`,
       check: async () => {
-        const dep = await getResourceJson<any>("deployment", "runner");
-        if (!dep) return { pass: false, message: `Deployment "runner" not found.` };
-        const container = dep.spec?.template?.spec?.containers?.[0];
-        const wired = (container?.env ?? []).some((e: any) => e.valueFrom?.secretKeyRef?.name === "runner-credentials");
-        if (!wired) {
-          return { pass: false, message: `Deployment "runner" isn't pulling env vars from runner-credentials yet.` };
+        const dep = await findRunnerDeployment();
+        if (!dep) {
+          return { pass: false, message: `No Deployment found yet with a container image containing "runner".` };
         }
-        return { pass: true, message: `runner Deployment is wired to runner-credentials.` };
+        return { pass: true, message: `Found Deployment "${dep.metadata?.name}" running the Runner image.` };
       },
     },
     {
@@ -82,17 +112,16 @@ kubectl set env deployment/runner --from=secret/runner-credentials -n ${NAMESPAC
       id: "confirm-connected",
       title: "Confirm it's actually running",
       instructions: `The moment of truth — is it really connected? If this fails with a crash loop,
-your credentials are probably wrong; check with \`kubectl logs deployment/runner -n
-${NAMESPACE}\` to see the real error, same as you did in Troubleshooting.`,
-      command: `kubectl get pods -l app=runner -n ${NAMESPACE}`,
+your credentials are probably wrong; check the Pod's logs (name it in the terminal:
+\`kubectl logs <pod-name> -n ${NAMESPACE}\`) to see the real error, same as you did
+in Troubleshooting.`,
+      command: `kubectl get pods -n ${NAMESPACE}`,
       hint: `A restart count that keeps climbing means it's crash-looping, almost always a bad Server URL, Client ID, or Token.`,
       check: async () => {
-        const pods = await listResourcesJson<any>("pods");
-        const runnerPods = pods.filter((p: any) => p.metadata?.labels?.app === "runner");
-        if (runnerPods.length === 0) {
-          return { pass: false, message: `No Pods found for the runner Deployment yet.` };
+        const pod = await findRunnerPod();
+        if (!pod) {
+          return { pass: false, message: `No Pod found yet with a container image containing "runner".` };
         }
-        const pod = runnerPods[0];
         const cs = pod.status?.containerStatuses?.[0];
         const restarts = cs?.restartCount ?? 0;
         const waitingReason = cs?.state?.waiting?.reason;
@@ -106,10 +135,10 @@ ${NAMESPACE}\` to see the real error, same as you did in Troubleshooting.`,
           if (restarts >= 2) {
             return {
               pass: false,
-              message: `runner is crash-looping (${restarts} restarts) — this usually means bad credentials. Check \`kubectl logs deployment/runner -n ${NAMESPACE}\`.`,
+              message: `runner is crash-looping (${restarts} restarts) — this usually means bad credentials. Check its logs with \`kubectl logs ${pod.metadata?.name} -n ${NAMESPACE}\`.`,
             };
           }
-          return { pass: false, message: `runner Pod is "${pod.status?.phase}", not Running/Ready yet. Give it a moment.` };
+          return { pass: false, message: `runner Pod "${pod.metadata?.name}" is "${pod.status?.phase}", not Running/Ready yet. Give it a moment.` };
         }
         return { pass: true, message: `Your Runbook Automation runner is Running and Ready. It's live.` };
       },

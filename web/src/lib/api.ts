@@ -19,5 +19,11 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ selectedIndex }),
     }).then((r) => json<CheckResult>(r)),
+  apply: (lessonId: string, stepId: string, yaml: string) =>
+    fetch(`/api/lessons/${lessonId}/steps/${stepId}/apply`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ yaml }),
+    }).then((r) => json<CheckResult>(r)),
   reset: () => fetch("/api/reset", { method: "POST" }).then((r) => json<{ ok: boolean }>(r)),
 };

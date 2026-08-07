@@ -4,6 +4,7 @@ import remarkGfm from "remark-gfm";
 import type { LessonDetail } from "../types";
 import { StepCard } from "./StepCard";
 import { QuizCard } from "./QuizCard";
+import { ManifestCard } from "./ManifestCard";
 
 interface Props {
   lesson: LessonDetail;
@@ -49,6 +50,18 @@ export function LessonView({ lesson, isStepDone, markStep, onRunInTerminal, onNe
               );
             }
             taskIndex += 1;
+            if (step.kind === "manifest") {
+              return (
+                <ManifestCard
+                  key={step.id}
+                  lessonId={lesson.id}
+                  index={taskIndex}
+                  step={step}
+                  done={isStepDone(lesson.id, step.id)}
+                  onDone={(pass) => markStep(lesson.id, step.id, pass)}
+                />
+              );
+            }
             return (
               <StepCard
                 key={step.id}

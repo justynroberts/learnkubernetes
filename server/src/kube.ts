@@ -1,7 +1,12 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 
 export const KUBE_CONTEXT = process.env.KUBE_CONTEXT ?? "rancher-desktop";
 export const NAMESPACE = process.env.TRAINING_NAMESPACE ?? "k8s-academy";
+/**
+ * Overridable so a newer (e.g. multi-arch/arm64) Runner build can be swapped
+ * in without a code change: `RUNNER_IMAGE=... npm run dev`.
+ */
+export const RUNNER_IMAGE = process.env.RUNNER_IMAGE ?? "rundeckpro/runner:5.18-RBA-20251119-90ca10b-59d3aa7";
 
 export interface KubectlResult {
   stdout: string;
@@ -103,6 +108,27 @@ export async function currentNodeInfo(): Promise<{ name: string; version: string
   } catch {
     return [];
   }
+}
+
+/**
+ * Applies a learner-edited YAML manifest via `kubectl apply -f -`, piped over
+ * stdin. Always scoped to the training namespace with `-n`, so even a pasted
+ * manifest (e.g. copied straight from Runbook Automation's UI) can't land
+ * outside it — kubectl errors rather than silently applying elsewhere if the
+ * manifest's own `metadata.namespace` conflicts.
+ */
+export function applyManifest(yaml: string, namespace: string = NAMESPACE): Promise<KubectlResult> {
+  return new Promise((resolve) => {
+    const proc = spawn("kubectl", ["--context", KUBE_CONTEXT, "apply", "-n", namespace, "-f", "-"]);
+    let stdout = "";
+    let stderr = "";
+    proc.stdout.on("data", (d) => (stdout += d));
+    proc.stderr.on("data", (d) => (stderr += d));
+    proc.on("close", (code) => resolve({ stdout, stderr, code: code ?? 1 }));
+    proc.on("error", (err) => resolve({ stdout, stderr: String(err), code: 1 }));
+    proc.stdin.write(yaml);
+    proc.stdin.end();
+  });
 }
 
 /** Deletes and recreates the training namespace, wiping all lesson resources. */
