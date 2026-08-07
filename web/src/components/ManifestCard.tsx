@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
+import CodeMirror from "@uiw/react-codemirror";
+import { yaml as yamlLang } from "@codemirror/lang-yaml";
+import { githubDark } from "@uiw/codemirror-theme-github";
 import type { CheckResult, ManifestStepDetail } from "../types";
 import { api } from "../lib/api";
 
@@ -52,12 +55,17 @@ export function ManifestCard({ lessonId, index, step, done, onDone }: Props) {
           <h3 className="font-semibold text-slate-100">{step.title}</h3>
           <p className="prose-lesson mt-1 text-sm">{step.instructions}</p>
 
-          <textarea
-            value={yaml}
-            onChange={(e) => setYaml(e.target.value)}
-            spellCheck={false}
-            className="mt-3 h-64 w-full resize-y rounded-lg border border-slate-700/70 bg-[#0d1017] p-3 font-mono text-[13px] text-pd-green-light outline-none focus:border-pd-green/60"
-          />
+          <div className="mt-3 overflow-hidden rounded-lg border border-slate-700/70 focus-within:border-pd-green/60">
+            <CodeMirror
+              value={yaml}
+              onChange={setYaml}
+              theme={githubDark}
+              extensions={[yamlLang()]}
+              height="280px"
+              basicSetup={{ foldGutter: true, highlightActiveLine: true }}
+              style={{ fontSize: 13, fontFamily: "'JetBrains Mono', ui-monospace, monospace" }}
+            />
+          </div>
 
           <div className="mt-3 flex items-center gap-3">
             <button
