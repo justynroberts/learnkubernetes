@@ -4,6 +4,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "postinstall": "node scripts/fix-native-deps.js",
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts"
   },

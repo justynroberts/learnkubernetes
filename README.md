@@ -32,16 +32,23 @@ run it as-is (the lesson explains this if you hit it).
   `rancher-desktop` kubeconfig context specifically).
 - Node.js 20+.
 
+(macOS/Linux — Windows users, run this under WSL.)
+
 ## Running it
 
 ```bash
-npm install --prefix server
-npm install --prefix web
-npm run dev
+./start.sh
 ```
 
-This starts the API/terminal server on `:4000` and the frontend on `:5173`. Open
-`http://localhost:5173`.
+That's it. It checks Node/kubectl/Rancher Desktop are actually set up (with a plain-
+English fix if something's missing), installs dependencies on first run only, starts
+both servers, and opens `http://localhost:5173` in your browser automatically once
+it's ready. Re-running it is always safe — it skips whatever's already done, and
+tells you plainly if the app is already running instead of erroring cryptically.
+
+Prefer to run it by hand? `npm install --prefix server && npm install --prefix web
+&& npm run dev` does the same thing without the checks, starting the API/terminal
+server on `:4000` and the frontend on `:5173`.
 
 All lesson exercises live in a dedicated `k8s-academy` namespace, created
 automatically on first run, so this never touches anything else on your cluster.
