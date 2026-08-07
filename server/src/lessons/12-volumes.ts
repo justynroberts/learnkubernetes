@@ -27,6 +27,7 @@ one or more containers.
 `,
   steps: [
     {
+      kind: "task",
       id: "add-volume",
       title: "Mount an emptyDir volume",
       instructions: `Patch the \`web\` Deployment to add an \`emptyDir\` volume named \`cache-volume\`,
@@ -41,6 +42,21 @@ mounted at \`/cache\` in the container.`,
         if (!mount) return { pass: false, message: `"cache-volume" exists but isn't mounted into the container yet.` };
         return { pass: true, message: `cache-volume is mounted at ${mount.mountPath}.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-volumes",
+      title: "Quick check",
+      instructions: "What happens to an emptyDir volume's data when the Pod that owns it is deleted?",
+      options: [
+        "It's automatically backed up somewhere",
+        "It's deleted along with the Pod",
+        "It moves to the next Pod that gets scheduled",
+        "It becomes a PersistentVolume automatically",
+      ],
+      correctIndex: 1,
+      explanation:
+        "emptyDir survives container restarts within the same Pod, but not Pod deletion — for data that needs to outlive the Pod, you need a PersistentVolume.",
     },
   ],
 };

@@ -15,6 +15,7 @@ stateless applications.
 `,
   steps: [
     {
+      kind: "task",
       id: "create-deployment",
       title: "Create a Deployment",
       instructions: `Create a Deployment called \`web\` running nginx with 2 replicas.`,
@@ -35,6 +36,7 @@ stateless applications.
       },
     },
     {
+      kind: "task",
       id: "watch-rollout",
       title: "Watch it roll out",
       instructions: `Watch the rollout finish in real time — this command blocks until every replica
@@ -48,6 +50,21 @@ is available.`,
         }
         return { pass: true, message: `Deployment "web" is fully available.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-deployments",
+      title: "Quick check",
+      instructions: "What actually creates and manages the individual Pods for a Deployment?",
+      options: [
+        "The Deployment object directly",
+        "An intermediate object called a ReplicaSet",
+        "The Kubernetes scheduler, with no other object involved",
+        "A DaemonSet",
+      ],
+      correctIndex: 1,
+      explanation:
+        "A Deployment manages ReplicaSets, and each ReplicaSet manages a set of identical Pods. This layering is what makes rolling updates possible — old and new ReplicaSets can briefly coexist during a rollout.",
     },
   ],
 };

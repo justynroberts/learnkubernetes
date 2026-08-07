@@ -21,6 +21,7 @@ deliberately creates a broken Pod so you can practice the diagnosis loop.
 `,
   steps: [
     {
+      kind: "task",
       id: "break-it",
       title: "Deploy a (deliberately) broken Pod",
       instructions: `Run a Pod with a typo'd image name — this will fail to pull.`,
@@ -36,6 +37,7 @@ deliberately creates a broken Pod so you can practice the diagnosis loop.
       },
     },
     {
+      kind: "task",
       id: "diagnose",
       title: "Diagnose the failure",
       instructions: `Use \`describe\` to see the actual error in the Events section at the bottom of
@@ -52,6 +54,7 @@ the output — that's where the real reason lives, not in \`kubectl get\`.`,
       },
     },
     {
+      kind: "task",
       id: "fix-it",
       title: "Fix it",
       instructions: `Now fix the typo by swapping in a valid image, without deleting and recreating the
@@ -65,6 +68,21 @@ Pod.`,
         }
         return { pass: true, message: `Fixed! broken-pod is Running with image "${pod.spec.containers[0].image}".` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-troubleshooting",
+      title: "Quick check",
+      instructions: "Where do you typically find the real reason a Pod failed to start (e.g. a bad image name)?",
+      options: [
+        "The `kubectl get pods` output",
+        "The Events section at the bottom of `kubectl describe pod`",
+        "`kubectl config view`",
+        "The Deployment's YAML spec",
+      ],
+      correctIndex: 1,
+      explanation:
+        "`kubectl get` shows current state, but the *why* — pull errors, scheduling failures, probe failures — lives in the Events the kubelet and controllers emit, visible via `describe`.",
     },
   ],
 };

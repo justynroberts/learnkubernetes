@@ -1,8 +1,9 @@
-# kubectl academy
+# PagerDuty Kubernetes Academy
 
 An interactive, hands-on Kubernetes course that runs against your **real local
 cluster** (Rancher Desktop). Every lesson's "Validate" button actually queries your
-cluster's live state — nothing is faked.
+cluster's live state — nothing is faked. Most lessons also include a quiz question
+to check conceptual understanding, not just command recall.
 
 ## What's inside
 
@@ -11,11 +12,19 @@ cluster's live state — nothing is faked.
   done, and hosts a WebSocket bridge (`node-pty`) that gives the browser a real
   terminal.
 - `web/` — React + Vite + Tailwind frontend: lesson sidebar with progress, markdown
-  lesson content, step-by-step tasks with an embedded terminal.
+  lesson content, step-by-step tasks and quizzes, an embedded terminal.
 
-15 lessons: cluster basics, Namespaces, Pods, Labels & Selectors, Deployments,
+16 lessons: cluster basics, Namespaces, Pods, Labels & Selectors, Deployments,
 Scaling, Services, ConfigMaps, Secrets, Health Probes, Rolling Updates & Rollbacks,
-Volumes, Jobs & CronJobs, Troubleshooting, and a final recap.
+Volumes, Jobs & CronJobs, Troubleshooting, a capstone that deploys a real **PagerDuty
+Runbook Automation** runner, and a final recap/graduation.
+
+The capstone (lesson 15) requires access to a PagerDuty Runbook Automation instance
+to generate a Runner's Server URL / Client ID / Token (Runner Management page).
+Validation checks that the deployed runner Pod is actually `Running` and `Ready`,
+not just that the manifest looks right. Note: the current Runner image is published
+for `linux/amd64` only — on Apple Silicon Macs, Rancher Desktop's `arm64` node can't
+run it as-is (the lesson explains this if you hit it).
 
 ## Prerequisites
 

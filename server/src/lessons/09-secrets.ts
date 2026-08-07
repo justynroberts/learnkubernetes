@@ -16,6 +16,7 @@ here.)
 `,
   steps: [
     {
+      kind: "task",
       id: "create-secret",
       title: "Create a Secret",
       instructions: `Create a Secret named \`web-secret\` with an \`API_KEY\` value.`,
@@ -28,6 +29,7 @@ here.)
       },
     },
     {
+      kind: "task",
       id: "consume-secret",
       title: "Wire it into the Deployment",
       instructions: `Inject the Secret's keys as environment variables into the \`web\` Deployment,
@@ -42,6 +44,21 @@ same as you did for the ConfigMap.`,
         }
         return { pass: true, message: `web's containers now source env vars from web-secret.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-secrets",
+      title: "Quick check",
+      instructions: "Is base64 encoding in a Kubernetes Secret the same thing as encryption?",
+      options: [
+        "Yes, Secrets are fully encrypted by default",
+        "No — base64 is just an encoding; real protection comes from cluster-level encryption-at-rest and RBAC",
+        "Yes, but only for values under 64 characters",
+        "No, Secrets are stored with no encoding at all",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Base64 just avoids binary-safety issues in the API — it's trivially reversible. Real Secret protection comes from etcd encryption-at-rest and restricting who can read Secret objects via RBAC.",
     },
   ],
 };

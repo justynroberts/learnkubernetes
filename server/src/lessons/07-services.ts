@@ -14,6 +14,7 @@ and "something else that needs to reliably reach them".
 `,
   steps: [
     {
+      kind: "task",
       id: "expose-deployment",
       title: "Expose the Deployment",
       instructions: `Create a ClusterIP Service named \`web-svc\` that load-balances across the \`web\`
@@ -32,6 +33,7 @@ Deployment's Pods on port 80.`,
       },
     },
     {
+      kind: "task",
       id: "resolve-service",
       title: "Confirm it has endpoints",
       instructions: `A Service is only useful if it actually has Pods behind it. List its endpoints to
@@ -45,6 +47,21 @@ confirm real Pod IPs are backing it.`,
         }
         return { pass: true, message: `web-svc has ${addrCount} Pod endpoint(s) behind it.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-services",
+      title: "Quick check",
+      instructions: "A ClusterIP Service's virtual IP stays stable even as...",
+      options: [
+        "The cluster is rebooted",
+        "Its backing Pods are replaced with new ones",
+        "You change its port number",
+        "None of the above — ClusterIPs change constantly",
+      ],
+      correctIndex: 1,
+      explanation:
+        "That stability is the whole point of a Service — Pods churn constantly, but whatever's talking to the Service doesn't need to know or care.",
     },
   ],
 };

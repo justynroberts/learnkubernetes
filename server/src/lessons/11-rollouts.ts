@@ -14,6 +14,7 @@ previous one just as easily.
 `,
   steps: [
     {
+      kind: "task",
       id: "update-image",
       title: "Roll out a new image version",
       instructions: `Update the \`web\` Deployment's container image to \`nginx:1.27-alpine\`. Watch
@@ -35,6 +36,7 @@ Pods rotate in real time.`,
       },
     },
     {
+      kind: "task",
       id: "check-history",
       title: "Review rollout history",
       instructions: `Every rollout is a numbered revision. List the Deployment's history.`,
@@ -51,6 +53,7 @@ Pods rotate in real time.`,
       },
     },
     {
+      kind: "task",
       id: "rollback",
       title: "Roll it back",
       instructions: `Undo the last rollout, returning \`web\` to the previous image.`,
@@ -63,6 +66,21 @@ Pods rotate in real time.`,
         }
         return { pass: true, message: `Rolled back — web is running "${container?.image}" again.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-rollouts",
+      title: "Quick check",
+      instructions: "During a rolling update, how does your app stay available the whole time?",
+      options: [
+        "All old Pods are deleted first, then new ones are created",
+        "Old and new Pods run side by side while traffic gradually shifts to the new ones",
+        "The Deployment pauses all traffic during the swap",
+        "It doesn't — some downtime is unavoidable",
+      ],
+      correctIndex: 1,
+      explanation:
+        "A rolling update replaces Pods incrementally, so there's always a working set of Pods handling traffic throughout the rollout.",
     },
   ],
 };

@@ -14,6 +14,7 @@ using the same syntax as Unix cron.
 `,
   steps: [
     {
+      kind: "task",
       id: "run-job",
       title: "Run a Job to completion",
       instructions: `Create a Job that runs a single command and exits.`,
@@ -29,6 +30,7 @@ using the same syntax as Unix cron.
       },
     },
     {
+      kind: "task",
       id: "create-cronjob",
       title: "Schedule a CronJob",
       instructions: `Create a CronJob that runs the same kind of task every minute.`,
@@ -39,6 +41,21 @@ using the same syntax as Unix cron.
         if (!cron.spec?.schedule) return { pass: false, message: `CronJob "hello-cron" has no schedule set.` };
         return { pass: true, message: `CronJob "hello-cron" is scheduled: "${cron.spec.schedule}".` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-jobs",
+      title: "Quick check",
+      instructions: "What's the key difference between a Job and a Deployment?",
+      options: [
+        "Jobs run to completion and track success; Deployments keep Pods running indefinitely",
+        "Jobs can only ever run on a schedule",
+        "Deployments cannot run more than one Pod",
+        "There is no real difference between them",
+      ],
+      correctIndex: 0,
+      explanation:
+        "A Deployment's whole purpose is to keep N Pods running forever. A Job's purpose is the opposite — run until the task finishes, then stop.",
     },
   ],
 };

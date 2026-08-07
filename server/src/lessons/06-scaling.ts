@@ -13,6 +13,7 @@ scheduling required.
 `,
   steps: [
     {
+      kind: "task",
       id: "scale-up",
       title: "Scale to 4 replicas",
       instructions: `Scale the \`web\` Deployment up to 4 replicas.`,
@@ -33,6 +34,7 @@ scheduling required.
       },
     },
     {
+      kind: "task",
       id: "verify-pods",
       title: "Count the Pods",
       instructions: `Confirm there are really 4 Pods backing the Deployment.`,
@@ -45,6 +47,21 @@ scheduling required.
         }
         return { pass: true, message: `${matches.length} Pods with app=web are Running.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-scaling",
+      title: "Quick check",
+      instructions: "When you scale a Deployment from 2 replicas up to 4, what happens to the original 2 Pods?",
+      options: [
+        "They're deleted and all 4 are recreated fresh",
+        "They keep running unchanged, and 2 new Pods are added",
+        "They're merged into one larger Pod",
+        "Nothing changes until the next rollout",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Scaling only changes the replica count — Kubernetes reconciles by adding or removing Pods to match, without touching Pods that are already correct.",
     },
   ],
 };

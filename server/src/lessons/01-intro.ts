@@ -20,6 +20,7 @@ simulated.
 `,
   steps: [
     {
+      kind: "task",
       id: "check-connection",
       title: "Talk to the API server",
       instructions: `Run the command below in the terminal panel to confirm \`kubectl\` can reach your
@@ -42,6 +43,7 @@ cluster's API server and list its nodes.`,
       },
     },
     {
+      kind: "task",
       id: "system-pods",
       title: "Peek at the system Pods",
       instructions: `Kubernetes itself runs as a set of Pods inside the \`kube-system\` namespace — things

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
-import type { CheckResult, StepDetail } from "../types";
+import type { CheckResult, TaskStepDetail } from "../types";
 import { api } from "../lib/api";
 
 interface Props {
   lessonId: string;
   index: number;
-  step: StepDetail;
+  step: TaskStepDetail;
   done: boolean;
   onDone: (pass: boolean) => void;
   onRunInTerminal: (command: string) => void;
@@ -62,7 +62,7 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
 
           {step.command && (
             <div className="mt-3 flex items-stretch overflow-hidden rounded-lg border border-slate-700/70 bg-[#0d1017]">
-              <code className="flex-1 overflow-x-auto px-3 py-2 font-mono text-[13px] text-blue-300 whitespace-pre">
+              <code className="flex-1 overflow-x-auto px-3 py-2 font-mono text-[13px] text-pd-green-light whitespace-pre">
                 {step.command}
               </code>
               <button
@@ -86,7 +86,7 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
             <button
               onClick={validate}
               disabled={validating}
-              className="rounded-lg bg-blue-600 px-3 py-1.5 text-sm font-medium text-white transition hover:bg-blue-500 disabled:opacity-50"
+              className="rounded-lg bg-pd-green px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
             >
               {validating ? "Checking…" : "Validate"}
             </button>

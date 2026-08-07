@@ -3,17 +3,19 @@ import { NAMESPACE, getResourceJson, namespaceExists } from "../kube.js";
 
 export const recap: Lesson = {
   id: "recap",
-  order: 15,
+  order: 16,
   title: "Graduation",
   concept: "Putting it all together",
   intro: `
 You've touched Namespaces, Pods, Deployments, Services, ConfigMaps, Secrets, health
-probes, Volumes, Jobs, CronJobs, and troubleshooting — the core vocabulary you'll
-see in almost any real Kubernetes cluster. This last check looks back across
+probes, Volumes, Jobs, CronJobs, troubleshooting, and deployed a real Runbook
+Automation runner — the core vocabulary you'll see in almost any real Kubernetes
+cluster, plus one genuine production workload. This last check looks back across
 everything you built to confirm it's all still standing.
 `,
   steps: [
     {
+      kind: "task",
       id: "final-check",
       title: "Final cluster check",
       instructions: `No new command this time — just hit **Validate** to confirm everything you built
@@ -37,6 +39,12 @@ during this course is still healthy on your cluster.`,
 
         const cron = await getResourceJson<any>("cronjob", "hello-cron");
         checks.push({ label: "hello-cron CronJob", ok: !!cron });
+
+        const runnerSecret = await getResourceJson<any>("secret", "runner-credentials");
+        checks.push({ label: "runner-credentials Secret", ok: !!runnerSecret });
+
+        const runnerDep = await getResourceJson<any>("deployment", "runner");
+        checks.push({ label: "runner Deployment", ok: !!runnerDep && (runnerDep.status?.readyReplicas ?? 0) > 0 });
 
         const failed = checks.filter((c) => !c.ok).map((c) => c.label);
         if (failed.length > 0) {

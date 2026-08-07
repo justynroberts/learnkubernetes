@@ -14,6 +14,7 @@ are for, coming up next), but understanding Pods is the foundation for everythin
 `,
   steps: [
     {
+      kind: "task",
       id: "run-pod",
       title: "Run a Pod",
       instructions: `Start a single Pod running an nginx web server.`,
@@ -30,6 +31,7 @@ are for, coming up next), but understanding Pods is the foundation for everythin
       },
     },
     {
+      kind: "task",
       id: "inspect-pod",
       title: "Inspect it",
       instructions: `Get the full details of the Pod — its containers, events, IP address, and node.
@@ -43,6 +45,21 @@ Look for the **Status**, **IP**, and **Events** sections in the output.`,
         }
         return { pass: true, message: `nginx-pod has been assigned IP ${pod.status.podIP}.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-pods",
+      title: "Quick check",
+      instructions: "Why don't you usually manage Pods directly in production?",
+      options: [
+        "Pods are immutable and can never be updated",
+        "If a Pod dies, nothing recreates it — that's the job of a controller like a Deployment",
+        "Pods can only run one container each",
+        "Pods require a separate license from Kubernetes",
+      ],
+      correctIndex: 1,
+      explanation:
+        "A bare Pod has no self-healing behavior. Controllers like Deployments watch and recreate Pods automatically when they disappear.",
     },
   ],
 };

@@ -22,7 +22,7 @@ export function Sidebar({ lessons, activeId, onSelect, progressFor, stepCounts }
             onClick={() => onSelect(lesson.id)}
             className={clsx(
               "flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm transition-colors",
-              active ? "bg-blue-500/10 text-blue-300" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200",
+              active ? "bg-pd-green/10 text-pd-green-light" : "text-slate-400 hover:bg-slate-800/50 hover:text-slate-200",
             )}
           >
             <span
@@ -31,7 +31,7 @@ export function Sidebar({ lessons, activeId, onSelect, progressFor, stepCounts }
                 complete
                   ? "bg-emerald-500 text-slate-900"
                   : active
-                    ? "bg-blue-500/20 text-blue-300"
+                    ? "bg-pd-green/20 text-pd-green-light"
                     : "bg-slate-800 text-slate-500",
               )}
             >

@@ -13,5 +13,11 @@ export const api = {
     fetch(`/api/lessons/${lessonId}/steps/${stepId}/validate`, { method: "POST" }).then((r) =>
       json<CheckResult>(r),
     ),
+  answer: (lessonId: string, stepId: string, selectedIndex: number) =>
+    fetch(`/api/lessons/${lessonId}/steps/${stepId}/answer`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ selectedIndex }),
+    }).then((r) => json<CheckResult>(r)),
   reset: () => fetch("/api/reset", { method: "POST" }).then((r) => json<{ ok: boolean }>(r)),
 };

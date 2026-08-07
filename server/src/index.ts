@@ -31,12 +31,23 @@ app.get("/api/lessons/:id", (req, res) => {
 app.post("/api/lessons/:id/steps/:stepId/validate", async (req, res) => {
   const { lesson, step } = findStep(req.params.id, req.params.stepId);
   if (!lesson || !step) return res.status(404).json({ error: "step not found" });
+  if (step.kind !== "task") return res.status(400).json({ error: "not a task step" });
   try {
     const result = await step.check();
     res.json(result);
   } catch (err: any) {
     res.status(500).json({ pass: false, message: `Validator error: ${err?.message ?? err}` });
   }
+});
+
+app.post("/api/lessons/:id/steps/:stepId/answer", (req, res) => {
+  const { lesson, step } = findStep(req.params.id, req.params.stepId);
+  if (!lesson || !step) return res.status(404).json({ error: "step not found" });
+  if (step.kind !== "quiz") return res.status(400).json({ error: "not a quiz step" });
+  const selectedIndex = req.body?.selectedIndex;
+  if (typeof selectedIndex !== "number") return res.status(400).json({ error: "selectedIndex required" });
+  const pass = selectedIndex === step.correctIndex;
+  res.json({ pass, message: step.explanation });
 });
 
 app.post("/api/reset", async (_req, res) => {

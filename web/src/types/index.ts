@@ -5,13 +5,24 @@ export interface LessonSummary {
   concept: string;
 }
 
-export interface StepDetail {
+export interface TaskStepDetail {
+  kind: "task";
   id: string;
   title: string;
   instructions: string;
   command?: string;
   hint?: string;
 }
+
+export interface QuizStepDetail {
+  kind: "quiz";
+  id: string;
+  title: string;
+  instructions: string;
+  options: string[];
+}
+
+export type StepDetail = TaskStepDetail | QuizStepDetail;
 
 export interface LessonDetail {
   id: string;

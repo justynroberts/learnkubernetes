@@ -14,6 +14,7 @@ Pods as environment variables or mounted files.
 `,
   steps: [
     {
+      kind: "task",
       id: "create-configmap",
       title: "Create a ConfigMap",
       instructions: `Create a ConfigMap named \`web-config\` with a \`GREETING\` key.`,
@@ -26,6 +27,7 @@ Pods as environment variables or mounted files.
       },
     },
     {
+      kind: "task",
       id: "consume-configmap",
       title: "Wire it into the Deployment",
       instructions: `Inject the ConfigMap's keys as environment variables into the \`web\` Deployment's
@@ -41,6 +43,21 @@ containers. Kubernetes will automatically roll the Pods to pick up the change.`,
         }
         return { pass: true, message: `web's containers now source env vars from web-config.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-configmaps",
+      title: "Quick check",
+      instructions: "What is a ConfigMap for?",
+      options: [
+        "Storing sensitive credentials securely",
+        "Storing non-sensitive configuration outside the container image",
+        "Persisting data across Pod restarts",
+        "Defining network policies between Pods",
+      ],
+      correctIndex: 1,
+      explanation:
+        "ConfigMaps hold plain configuration. For anything sensitive, use a Secret instead — same shape, different handling.",
     },
   ],
 };

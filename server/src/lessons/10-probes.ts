@@ -31,6 +31,7 @@ periodic checks — HTTP calls, TCP connects, or exec commands — that you defi
 `,
   steps: [
     {
+      kind: "task",
       id: "add-probes",
       title: "Add liveness & readiness probes",
       instructions: `Patch the \`web\` Deployment to add an HTTP liveness probe and readiness probe that
@@ -48,6 +49,21 @@ both check \`/\` on port 80.`,
         }
         return { pass: true, message: `web's containers now have both liveness and readiness probes.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-probes",
+      title: "Quick check",
+      instructions: "What's the difference between a liveness probe and a readiness probe?",
+      options: [
+        "They're identical, just named differently",
+        "Liveness failing restarts the container; readiness failing just removes it from Service traffic without restarting",
+        "Readiness probes only apply to Jobs, not Deployments",
+        "Liveness probes only check CPU usage",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Liveness answers \"should this be restarted?\". Readiness answers \"should this receive traffic right now?\". A slow-starting but otherwise healthy container should fail readiness, not liveness.",
     },
   ],
 };

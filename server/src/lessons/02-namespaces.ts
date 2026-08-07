@@ -16,6 +16,7 @@ which keeps every exercise cleanly separated from anything else on your cluster.
 `,
   steps: [
     {
+      kind: "task",
       id: "create-namespace",
       title: `Create the "${NAMESPACE}" namespace`,
       instructions: `Create a namespace for this course to live in.`,
@@ -30,6 +31,7 @@ which keeps every exercise cleanly separated from anything else on your cluster.
       },
     },
     {
+      kind: "task",
       id: "set-default-namespace",
       title: "Make it your default",
       instructions: `Typing \`-n ${NAMESPACE}\` on every command gets old fast. Point your current
@@ -44,6 +46,21 @@ which keeps every exercise cleanly separated from anything else on your cluster.
         }
         return { pass: true, message: `Default namespace is now "${NAMESPACE}".` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-namespaces",
+      title: "Quick check",
+      instructions: "What is the main purpose of a Kubernetes Namespace?",
+      options: [
+        "To divide one cluster into virtual clusters, scoping resource names and access",
+        "To increase the CPU or memory allocated to a Pod",
+        "To store container images",
+        "To open a network port on a Pod",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Namespaces scope resource names and access within a shared cluster — they don't affect compute resources, images, or networking directly.",
     },
   ],
 };

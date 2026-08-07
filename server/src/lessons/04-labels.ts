@@ -14,6 +14,7 @@ or IPs.
 `,
   steps: [
     {
+      kind: "task",
       id: "label-pod",
       title: "Label the Pod",
       instructions: `Attach a \`tier=frontend\` label to \`nginx-pod\` from the previous lesson.`,
@@ -29,6 +30,7 @@ or IPs.
       },
     },
     {
+      kind: "task",
       id: "select-by-label",
       title: "Find it by selector",
       instructions: `Use a label selector to list only Pods tagged \`tier=frontend\`, instead of
@@ -43,6 +45,21 @@ listing every Pod and eyeballing it.`,
         }
         return { pass: true, message: `${matches.length} Pod(s) match tier=frontend.` };
       },
+    },
+    {
+      kind: "quiz",
+      id: "quiz-labels",
+      title: "Quick check",
+      instructions: "What connects a Service (or Deployment) to the right set of Pods?",
+      options: [
+        "The Pod's IP address, hardcoded into the Service",
+        "A label selector that matches labels on the Pods",
+        "The Pod's container name",
+        "Whichever node the Pod happens to run on",
+      ],
+      correctIndex: 1,
+      explanation:
+        "Services, Deployments, and ReplicaSets never hardcode Pod identities — they use label selectors, so the matching Pod set can change freely underneath them.",
     },
   ],
 };

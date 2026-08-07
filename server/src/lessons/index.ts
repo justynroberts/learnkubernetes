@@ -13,7 +13,8 @@ import { rollouts } from "./11-rollouts.js";
 import { volumes } from "./12-volumes.js";
 import { jobs } from "./13-jobs.js";
 import { troubleshooting } from "./14-troubleshooting.js";
-import { recap } from "./15-recap.js";
+import { runbookAutomation } from "./15-runbook-automation.js";
+import { recap } from "./16-recap.js";
 
 export const LESSONS: Lesson[] = [
   intro,
@@ -30,6 +31,7 @@ export const LESSONS: Lesson[] = [
   volumes,
   jobs,
   troubleshooting,
+  runbookAutomation,
   recap,
 ].sort((a, b) => a.order - b.order);
 

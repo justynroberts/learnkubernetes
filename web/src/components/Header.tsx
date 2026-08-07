@@ -11,11 +11,20 @@ export function Header({ status, percent, onReset }: Props) {
   return (
     <header className="flex h-14 shrink-0 items-center justify-between border-b border-slate-800 bg-panel px-5" style={{ background: "var(--color-panel)" }}>
       <div className="flex items-center gap-2.5">
-        <svg width="22" height="22" viewBox="0 0 32 32" className="text-blue-400">
-          <polygon points="16,2 29,9.5 29,22.5 16,30 3,22.5 3,9.5" fill="none" stroke="currentColor" strokeWidth="2" />
-          <circle cx="16" cy="16" r="5" fill="currentColor" />
+        <svg width="24" height="24" viewBox="0 0 32 32" className="text-pd-green">
+          <circle cx="16" cy="16" r="14" fill="none" stroke="currentColor" strokeWidth="2" />
+          <polyline
+            points="6,17 11,17 13,11 17,22 20,17 26,17"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
-        <span className="font-semibold text-slate-100">kubectl academy</span>
+        <span className="font-semibold text-slate-100">
+          PagerDuty <span className="font-normal text-slate-400">Kubernetes Academy</span>
+        </span>
       </div>
 
       <div className="flex items-center gap-5">
@@ -39,7 +48,7 @@ export function Header({ status, percent, onReset }: Props) {
         <div className="flex items-center gap-2">
           <div className="h-1.5 w-32 overflow-hidden rounded-full bg-slate-800">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 transition-all"
+              className="h-full rounded-full bg-gradient-to-r from-pd-green to-emerald-400 transition-all"
               style={{ width: `${percent}%` }}
             />
           </div>

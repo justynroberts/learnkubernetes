@@ -42,7 +42,7 @@ export const Terminal = forwardRef<TerminalHandle>(function Terminal(_props, ref
       theme: {
         background: "#0b0e14",
         foreground: "#d1d5db",
-        cursor: "#60a5fa",
+        cursor: "#06ac38",
         selectionBackground: "#334155",
       },
     });

@@ -3,7 +3,8 @@ export interface CheckResult {
   message: string;
 }
 
-export interface Step {
+export interface TaskStep {
+  kind: "task";
   id: string;
   title: string;
   /** Markdown instructions shown to the learner. */
@@ -13,6 +14,19 @@ export interface Step {
   hint?: string;
   check: () => Promise<CheckResult>;
 }
+
+export interface QuizStep {
+  kind: "quiz";
+  id: string;
+  title: string;
+  /** The question prompt, markdown. */
+  instructions: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+export type Step = TaskStep | QuizStep;
 
 export interface Lesson {
   id: string;
@@ -32,13 +46,17 @@ export interface LessonSummary {
   concept: string;
 }
 
+export type TaskStepDetail = Omit<TaskStep, "check">;
+export type QuizStepDetail = Omit<QuizStep, "correctIndex" | "explanation">;
+export type StepDetail = TaskStepDetail | QuizStepDetail;
+
 export interface LessonDetail {
   id: string;
   order: number;
   title: string;
   concept: string;
   intro: string;
-  steps: Omit<Step, "check">[];
+  steps: StepDetail[];
 }
 
 export function toSummary(l: Lesson): LessonSummary {
@@ -52,6 +70,13 @@ export function toDetail(l: Lesson): LessonDetail {
     title: l.title,
     concept: l.concept,
     intro: l.intro,
-    steps: l.steps.map(({ check, ...rest }) => rest),
+    steps: l.steps.map((step): StepDetail => {
+      if (step.kind === "task") {
+        const { check, ...rest } = step;
+        return rest;
+      }
+      const { correctIndex, explanation, ...rest } = step;
+      return rest;
+    }),
   };
 }

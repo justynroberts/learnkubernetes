@@ -3,6 +3,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { LessonDetail } from "../types";
 import { StepCard } from "./StepCard";
+import { QuizCard } from "./QuizCard";
 
 interface Props {
   lesson: LessonDetail;
@@ -23,7 +24,7 @@ export function LessonView({ lesson, isStepDone, markStep, onRunInTerminal, onNe
       transition={{ duration: 0.25 }}
       className="mx-auto max-w-3xl px-8 py-10"
     >
-      <div className="mb-1 text-xs font-semibold tracking-widest text-blue-400 uppercase">
+      <div className="mb-1 text-xs font-semibold tracking-widest text-pd-green uppercase">
         Lesson {lesson.order} · {lesson.concept}
       </div>
       <h1 className="mb-5 text-3xl font-bold text-slate-50">{lesson.title}</h1>
@@ -33,17 +34,34 @@ export function LessonView({ lesson, isStepDone, markStep, onRunInTerminal, onNe
       </div>
 
       <div className="space-y-4">
-        {lesson.steps.map((step, i) => (
-          <StepCard
-            key={step.id}
-            lessonId={lesson.id}
-            index={i}
-            step={step}
-            done={isStepDone(lesson.id, step.id)}
-            onDone={(pass) => markStep(lesson.id, step.id, pass)}
-            onRunInTerminal={onRunInTerminal}
-          />
-        ))}
+        {(() => {
+          let taskIndex = -1;
+          return lesson.steps.map((step) => {
+            if (step.kind === "quiz") {
+              return (
+                <QuizCard
+                  key={step.id}
+                  lessonId={lesson.id}
+                  step={step}
+                  done={isStepDone(lesson.id, step.id)}
+                  onDone={(pass) => markStep(lesson.id, step.id, pass)}
+                />
+              );
+            }
+            taskIndex += 1;
+            return (
+              <StepCard
+                key={step.id}
+                lessonId={lesson.id}
+                index={taskIndex}
+                step={step}
+                done={isStepDone(lesson.id, step.id)}
+                onDone={(pass) => markStep(lesson.id, step.id, pass)}
+                onRunInTerminal={onRunInTerminal}
+              />
+            );
+          });
+        })()}
       </div>
 
       {allDone && (

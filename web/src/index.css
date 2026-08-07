@@ -3,13 +3,14 @@
 @theme {
   --font-sans: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
-  --color-k8s-blue: #326ce5;
-  --color-bg: #0b0e14;
-  --color-panel: #12151c;
-  --color-panel-2: #171b24;
-  --color-border: #232936;
-  --color-accent: #60a5fa;
+  --color-bg: #0a0f0c;
+  --color-panel: #10160f;
+  --color-panel-2: #141c14;
+  --color-border: #22321f;
+  --color-accent: #06ac38;
   --color-accent-2: #34d399;
+  --color-pd-green: #06ac38;
+  --color-pd-green-light: #2fe070;
 }
 
 html,
@@ -46,8 +47,8 @@ body {
 
 .bg-grid {
   background-image:
-    linear-gradient(to right, rgba(96, 165, 250, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(96, 165, 250, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(6, 172, 56, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(6, 172, 56, 0.06) 1px, transparent 1px);
   background-size: 32px 32px;
 }
 
@@ -63,8 +64,8 @@ body {
   font-weight: 600;
 }
 .prose-lesson code {
-  background: #1c2231;
-  color: #93c5fd;
+  background: #16211a;
+  color: #4ade80;
   padding: 0.15em 0.4em;
   border-radius: 4px;
   font-family: var(--font-mono);
