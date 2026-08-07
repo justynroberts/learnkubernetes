@@ -7,7 +7,7 @@ import { Sidebar } from "./components/Sidebar";
 import { LessonView } from "./components/LessonView";
 import type { TerminalHandle } from "./components/Terminal";
 import { TerminalPanel } from "./components/TerminalPanel";
-import { ManifestEditorPanel } from "./components/ManifestEditorPanel";
+import { ManifestEditorPanel, type LinkedStep } from "./components/ManifestEditorPanel";
 import { Tour, type TourStep } from "./components/Tour";
 
 const TOUR_SEEN_KEY = "lk-tour-seen-v1";
@@ -47,10 +47,12 @@ export default function App() {
   const [status, setStatus] = useState<ClusterStatus | null>(null);
   const [terminalCollapsed, setTerminalCollapsed] = useState(true);
   const [manifestEditorOpen, setManifestEditorOpen] = useState(false);
+  const [manifestEditorLink, setManifestEditorLink] = useState<LinkedStep | null>(null);
   const [tourActive, setTourActive] = useState(false);
 
   const { isStepDone, markStep, lessonProgress, reset } = useProgress();
   const termRef = useRef<TerminalHandle>(null);
+  const autoOfferedLessons = useRef(new Set<string>());
 
   useEffect(() => {
     api.lessons().then((ls) => {
@@ -93,6 +95,45 @@ export default function App() {
     ? lessonProgress(activeLesson.id, activeLesson.steps.length)
     : { done: 0, total: 0, complete: false };
 
+  function openManifestEditorForStep(stepId: string) {
+    if (!activeLesson) return;
+    const step = activeLesson.steps.find((s) => s.id === stepId);
+    if (!step || step.kind !== "manifest") return;
+    setManifestEditorLink({
+      lessonId: activeLesson.id,
+      stepId: step.id,
+      lessonTitle: activeLesson.title,
+      stepTitle: step.title,
+      template: step.template,
+      hint: step.hint,
+    });
+    setManifestEditorOpen(true);
+  }
+
+  // The first time a lesson with an incomplete YAML step is opened, surface
+  // the editor automatically instead of leaving it as a small inline box —
+  // long manifests need real editing room. Only offers once per lesson per
+  // session, and never yanks the panel away if it's already open for
+  // something else.
+  useEffect(() => {
+    if (!activeLesson) return;
+    if (autoOfferedLessons.current.has(activeLesson.id)) return;
+    const target = activeLesson.steps.find((s) => s.kind === "manifest" && !isStepDone(activeLesson.id, s.id));
+    autoOfferedLessons.current.add(activeLesson.id);
+    if (!target || manifestEditorOpen) return;
+    openManifestEditorForStep(target.id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeLesson?.id]);
+
+  function toggleManifestEditor() {
+    if (manifestEditorOpen) {
+      setManifestEditorOpen(false);
+    } else {
+      setManifestEditorLink(null);
+      setManifestEditorOpen(true);
+    }
+  }
+
   async function handleReset() {
     if (!window.confirm("This deletes and recreates the k8s-academy namespace on your cluster, and clears your local progress. Continue?")) {
       return;
@@ -116,7 +157,7 @@ export default function App() {
         terminalCollapsed={terminalCollapsed}
         onToggleTerminal={() => setTerminalCollapsed((c) => !c)}
         manifestEditorOpen={manifestEditorOpen}
-        onToggleManifestEditor={() => setManifestEditorOpen((o) => !o)}
+        onToggleManifestEditor={toggleManifestEditor}
         onOpenTour={() => setTourActive(true)}
         onReset={handleReset}
       />
@@ -142,6 +183,7 @@ export default function App() {
                   setTerminalCollapsed(false);
                   termRef.current?.runCommand(cmd);
                 }}
+                onOpenManifestEditor={openManifestEditorForStep}
                 onNextLesson={() => nextLesson && setActiveId(nextLesson.id)}
                 hasNext={!!nextLesson}
                 allDone={activeLessonProgress.complete}
@@ -159,7 +201,13 @@ export default function App() {
         </div>
       </div>
 
-      <ManifestEditorPanel open={manifestEditorOpen} onClose={() => setManifestEditorOpen(false)} />
+      <ManifestEditorPanel
+        open={manifestEditorOpen}
+        onClose={() => setManifestEditorOpen(false)}
+        linkedStep={manifestEditorLink}
+        onGoFreeform={() => setManifestEditorLink(null)}
+        onStepResult={(lessonId, stepId, pass) => markStep(lessonId, stepId, pass)}
+      />
 
       {tourActive && <Tour steps={TOUR_STEPS} onFinish={finishTour} />}
     </div>

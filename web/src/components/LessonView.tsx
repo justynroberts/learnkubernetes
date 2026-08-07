@@ -11,6 +11,7 @@ interface Props {
   isStepDone: (lessonId: string, stepId: string) => boolean;
   markStep: (lessonId: string, stepId: string, done: boolean) => void;
   onRunInTerminal: (command: string) => void;
+  onOpenManifestEditor: (stepId: string) => void;
   onNextLesson?: () => void;
   hasNext: boolean;
   allDone: boolean;
@@ -26,7 +27,16 @@ const itemVariants: Variants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
 };
 
-export function LessonView({ lesson, isStepDone, markStep, onRunInTerminal, onNextLesson, hasNext, allDone }: Props) {
+export function LessonView({
+  lesson,
+  isStepDone,
+  markStep,
+  onRunInTerminal,
+  onOpenManifestEditor,
+  onNextLesson,
+  hasNext,
+  allDone,
+}: Props) {
   return (
     <motion.div
       key={lesson.id}
@@ -65,11 +75,10 @@ export function LessonView({ lesson, isStepDone, markStep, onRunInTerminal, onNe
               return (
                 <motion.div key={step.id} variants={itemVariants}>
                   <ManifestCard
-                    lessonId={lesson.id}
                     index={taskIndex}
                     step={step}
                     done={isStepDone(lesson.id, step.id)}
-                    onDone={(pass) => markStep(lesson.id, step.id, pass)}
+                    onOpenEditor={() => onOpenManifestEditor(step.id)}
                   />
                 </motion.div>
               );

@@ -77,27 +77,30 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
           <p className="prose-lesson mt-1 text-sm">{step.instructions}</p>
 
           {step.command && (
-            <div className="mt-3 flex items-stretch overflow-hidden rounded-lg border border-slate-700/70 bg-[#0d1017]">
-              <code className="flex-1 overflow-x-auto px-3 py-2 font-mono text-[13px] text-pd-green-light whitespace-pre">
+            <div className="group relative mt-3 overflow-hidden rounded-lg border border-slate-700/70 bg-[#0d1017]">
+              <code className="block overflow-x-auto px-3 py-2 pr-24 font-mono text-[13px] text-pd-green-light whitespace-pre">
                 {step.command}
               </code>
-              <motion.button
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={copy}
-                className="border-l border-slate-700/70 bg-pd-green/10 px-3 text-xs font-semibold text-pd-green-light hover:bg-pd-green/20"
-                title="Copy to clipboard"
-              >
-                {copied ? "Copied ✓" : "Copy"}
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.94 }}
-                onClick={run}
-                className="border-l border-slate-700/70 px-3 text-xs font-medium text-slate-500 hover:bg-slate-700/30 hover:text-slate-300"
-                title="Send to embedded terminal"
-              >
-                Run ▶
-              </motion.button>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-stretch opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+                <div className="w-6 bg-gradient-to-r from-transparent to-[#0d1017]" />
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={copy}
+                  className="border-l border-slate-700/70 bg-pd-green/10 px-3 text-xs font-semibold text-pd-green-light hover:bg-pd-green/20"
+                  title="Copy to clipboard"
+                >
+                  {copied ? "Copied ✓" : "Copy"}
+                </motion.button>
+                <motion.button
+                  whileTap={{ scale: 0.94 }}
+                  onClick={run}
+                  className="border-l border-slate-700/70 bg-[#0d1017] px-3 text-xs font-medium text-slate-500 hover:bg-slate-700/30 hover:text-slate-300"
+                  title="Send to embedded terminal"
+                >
+                  Run ▶
+                </motion.button>
+              </div>
             </div>
           )}
 
