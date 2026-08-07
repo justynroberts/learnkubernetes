@@ -14,13 +14,23 @@ and "something else that needs to reliably reach them".
 `,
   steps: [
     {
-      kind: "task",
+      kind: "manifest",
       id: "expose-deployment",
       title: "Expose the Deployment",
-      instructions: `Create a ClusterIP Service named \`web-svc\` that load-balances across the \`web\`
-Deployment's Pods on port 80.`,
-      command: `kubectl expose deployment/web --port=80 --target-port=80 --name=web-svc -n ${NAMESPACE}`,
-      hint: "`kubectl expose` copies the Deployment's Pod labels into the Service's selector automatically.",
+      instructions: `Write a ClusterIP Service manifest named \`web-svc\` that load-balances across the
+\`web\` Deployment's Pods on port 80, and apply it.`,
+      hint: "The selector needs to match the Deployment's Pod labels — app: web — or the Service won't find any Pods.",
+      template: `apiVersion: v1
+kind: Service
+metadata:
+  name: web-svc
+spec:
+  selector:
+    app: web
+  ports:
+    - port: 80
+      targetPort: 80
+`,
       check: async () => {
         const svc = await getResourceJson<any>("service", "web-svc");
         if (!svc) return { pass: false, message: `Service "web-svc" not found in namespace "${NAMESPACE}".` };

@@ -16,11 +16,19 @@ here.)
 `,
   steps: [
     {
-      kind: "task",
+      kind: "manifest",
       id: "create-secret",
       title: "Create a Secret",
-      instructions: `Create a Secret named \`web-secret\` with an \`API_KEY\` value.`,
-      command: `kubectl create secret generic web-secret --from-literal=API_KEY=super-secret-value -n ${NAMESPACE}`,
+      instructions: `Write a Secret manifest named \`web-secret\` with an \`API_KEY\` value, and apply it.
+Use \`stringData\` rather than \`data\` — it lets you write the plain value and
+Kubernetes base64-encodes it for you, instead of you having to do it by hand.`,
+      template: `apiVersion: v1
+kind: Secret
+metadata:
+  name: web-secret
+stringData:
+  API_KEY: super-secret-value
+`,
       check: async () => {
         const secret = await getResourceJson<any>("secret", "web-secret");
         if (!secret) return { pass: false, message: `Secret "web-secret" not found.` };

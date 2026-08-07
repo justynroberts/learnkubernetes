@@ -12,15 +12,40 @@ back. A **Deployment** describes the *desired state* of a set of identical Pods
 (which image, how many replicas) and continuously works to make reality match it,
 via an intermediate object called a **ReplicaSet**. This is the standard way to run
 stateless applications.
+
+You *can* create one with a single imperative command (\`kubectl create
+deployment ...\`), but real-world Kubernetes work is almost always done by writing
+and applying a **YAML manifest** instead — it's reviewable, diffable, and goes in
+version control. This course uses that workflow from here on.
 `,
   steps: [
     {
-      kind: "task",
+      kind: "manifest",
       id: "create-deployment",
       title: "Create a Deployment",
-      instructions: `Create a Deployment called \`web\` running nginx with 2 replicas.`,
-      command: `kubectl create deployment web --image=nginx:alpine --replicas=2 -n ${NAMESPACE}`,
-      hint: "A Deployment named `web` will automatically label its Pods `app=web`.",
+      instructions: `Write a Deployment manifest called \`web\`, running nginx with 2 replicas, and
+apply it.`,
+      hint: "The container's name matters — later lessons refer to it by name (\"nginx\") when patching probes and rolling out image updates.",
+      template: `apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+`,
       check: async () => {
         const dep = await getResourceJson<any>("deployment", "web");
         if (!dep) return { pass: false, message: `Deployment "web" not found in namespace "${NAMESPACE}".` };

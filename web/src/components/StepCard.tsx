@@ -18,6 +18,12 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
   const [validating, setValidating] = useState(false);
   const [result, setResult] = useState<CheckResult | null>(done ? { pass: true, message: "" } : null);
   const [copied, setCopied] = useState(false);
+  // Steps with no command (e.g. the graduation recap) have nothing to "run"
+  // first, so Validate is available immediately. Steps with a command stay
+  // hidden until the learner has actually copied or run it — otherwise the
+  // first thing many people do is click Validate before doing anything,
+  // which just reads as "this is broken."
+  const [interacted, setInteracted] = useState(!step.command || done);
 
   async function validate() {
     setValidating(true);
@@ -36,7 +42,14 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
     if (!step.command) return;
     navigator.clipboard.writeText(step.command);
     setCopied(true);
+    setInteracted(true);
     setTimeout(() => setCopied(false), 1500);
+  }
+
+  function run() {
+    if (!step.command) return;
+    setInteracted(true);
+    onRunInTerminal(step.command);
   }
 
   return (
@@ -69,34 +82,51 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
                 {step.command}
               </code>
               <motion.button
+                whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.94 }}
-                onClick={() => onRunInTerminal(step.command!)}
-                className="border-l border-slate-700/70 px-3 text-xs font-medium text-emerald-400 hover:bg-emerald-500/10"
-                title="Send to terminal"
+                onClick={copy}
+                className="border-l border-slate-700/70 bg-pd-green/10 px-3 text-xs font-semibold text-pd-green-light hover:bg-pd-green/20"
+                title="Copy to clipboard"
               >
-                Run ▶
+                {copied ? "Copied ✓" : "Copy"}
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.94 }}
-                onClick={copy}
-                className="border-l border-slate-700/70 px-3 text-xs font-medium text-slate-400 hover:bg-slate-700/30"
-                title="Copy"
+                onClick={run}
+                className="border-l border-slate-700/70 px-3 text-xs font-medium text-slate-500 hover:bg-slate-700/30 hover:text-slate-300"
+                title="Send to embedded terminal"
               >
-                {copied ? "Copied" : "Copy"}
+                Run ▶
               </motion.button>
             </div>
           )}
 
           <div className="mt-3 flex items-center gap-3">
-            <motion.button
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={validate}
-              disabled={validating}
-              className="rounded-lg bg-pd-green px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
-            >
-              {validating ? "Checking…" : "Validate"}
-            </motion.button>
+            <AnimatePresence mode="popLayout" initial={false}>
+              {interacted ? (
+                <motion.button
+                  key="validate"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={validate}
+                  disabled={validating}
+                  className="rounded-lg bg-pd-green px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
+                >
+                  {validating ? "Checking…" : "Validate"}
+                </motion.button>
+              ) : (
+                <motion.span
+                  key="placeholder"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="text-sm text-slate-600 italic"
+                >
+                  Copy or run the command above, then validate
+                </motion.span>
+              )}
+            </AnimatePresence>
             {step.hint && (
               <button
                 onClick={() => setShowHint((v) => !v)}

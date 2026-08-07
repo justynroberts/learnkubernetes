@@ -14,11 +14,17 @@ Pods as environment variables or mounted files.
 `,
   steps: [
     {
-      kind: "task",
+      kind: "manifest",
       id: "create-configmap",
       title: "Create a ConfigMap",
-      instructions: `Create a ConfigMap named \`web-config\` with a \`GREETING\` key.`,
-      command: `kubectl create configmap web-config --from-literal=GREETING="Hello from a ConfigMap" -n ${NAMESPACE}`,
+      instructions: `Write a ConfigMap manifest named \`web-config\` with a \`GREETING\` key, and apply it.`,
+      template: `apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-config
+data:
+  GREETING: "Hello from a ConfigMap"
+`,
       check: async () => {
         const cm = await getResourceJson<any>("configmap", "web-config");
         if (!cm) return { pass: false, message: `ConfigMap "web-config" not found.` };
