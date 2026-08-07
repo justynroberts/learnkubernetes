@@ -25,5 +25,11 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ yaml }),
     }).then((r) => json<CheckResult>(r)),
+  applyRaw: (yaml: string) =>
+    fetch("/api/manifest/apply", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ yaml }),
+    }).then((r) => json<{ pass: boolean; stdout: string; stderr: string }>(r)),
   reset: () => fetch("/api/reset", { method: "POST" }).then((r) => json<{ ok: boolean }>(r)),
 };

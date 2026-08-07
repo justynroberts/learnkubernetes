@@ -40,7 +40,10 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
   }
 
   return (
-    <div
+    <motion.div
+      layout
+      whileHover={{ y: -2 }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className={clsx(
         "rounded-xl border p-5 transition-colors",
         done ? "border-emerald-500/30 bg-emerald-500/[0.03]" : "border-slate-700/60 bg-panel",
@@ -65,31 +68,35 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
               <code className="flex-1 overflow-x-auto px-3 py-2 font-mono text-[13px] text-pd-green-light whitespace-pre">
                 {step.command}
               </code>
-              <button
+              <motion.button
+                whileTap={{ scale: 0.94 }}
                 onClick={() => onRunInTerminal(step.command!)}
                 className="border-l border-slate-700/70 px-3 text-xs font-medium text-emerald-400 hover:bg-emerald-500/10"
                 title="Send to terminal"
               >
                 Run ▶
-              </button>
-              <button
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.94 }}
                 onClick={copy}
                 className="border-l border-slate-700/70 px-3 text-xs font-medium text-slate-400 hover:bg-slate-700/30"
                 title="Copy"
               >
                 {copied ? "Copied" : "Copy"}
-              </button>
+              </motion.button>
             </div>
           )}
 
           <div className="mt-3 flex items-center gap-3">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.95 }}
               onClick={validate}
               disabled={validating}
               className="rounded-lg bg-pd-green px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
             >
               {validating ? "Checking…" : "Validate"}
-            </button>
+            </motion.button>
             {step.hint && (
               <button
                 onClick={() => setShowHint((v) => !v)}
@@ -131,6 +138,6 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
           </AnimatePresence>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }

@@ -78,6 +78,16 @@ app.post("/api/lessons/:id/steps/:stepId/apply", async (req, res) => {
   }
 });
 
+// Free-form scratch apply — not tied to any lesson step, no validation attached.
+// Lets a learner experiment with arbitrary manifests (Deployments, Services, etc.)
+// at any time, always scoped to the training namespace.
+app.post("/api/manifest/apply", async (req, res) => {
+  const yaml = req.body?.yaml;
+  if (typeof yaml !== "string" || !yaml.trim()) return res.status(400).json({ error: "yaml required" });
+  const applied = await applyManifest(yaml);
+  res.json({ pass: applied.code === 0, stdout: applied.stdout, stderr: applied.stderr });
+});
+
 app.post("/api/reset", async (_req, res) => {
   await resetNamespace();
   res.json({ ok: true });

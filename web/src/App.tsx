@@ -7,6 +7,7 @@ import { Sidebar } from "./components/Sidebar";
 import { LessonView } from "./components/LessonView";
 import type { TerminalHandle } from "./components/Terminal";
 import { TerminalPanel } from "./components/TerminalPanel";
+import { ManifestEditorPanel } from "./components/ManifestEditorPanel";
 import { Tour, type TourStep } from "./components/Tour";
 
 const TOUR_SEEN_KEY = "lk-tour-seen-v1";
@@ -28,6 +29,11 @@ const TOUR_STEPS: TourStep[] = [
     body: "This opens a real terminal wired to your local shell and cluster. Click \"Run\" on any command in a lesson to send it straight here.",
   },
   {
+    selector: '[data-tour="manifest-editor-toggle"]',
+    title: "Free-form YAML editing",
+    body: "Need to write or tweak a Deployment, Service, or other manifest outside a lesson? Open this any time — it applies straight to your k8s-academy namespace.",
+  },
+  {
     selector: '[data-tour="help"]',
     title: "Need this again?",
     body: "Click here any time to replay this tour.",
@@ -40,6 +46,7 @@ export default function App() {
   const [detailCache, setDetailCache] = useState<Record<string, LessonDetail>>({});
   const [status, setStatus] = useState<ClusterStatus | null>(null);
   const [terminalCollapsed, setTerminalCollapsed] = useState(true);
+  const [manifestEditorOpen, setManifestEditorOpen] = useState(false);
   const [tourActive, setTourActive] = useState(false);
 
   const { isStepDone, markStep, lessonProgress, reset } = useProgress();
@@ -108,6 +115,8 @@ export default function App() {
         percent={overallPercent}
         terminalCollapsed={terminalCollapsed}
         onToggleTerminal={() => setTerminalCollapsed((c) => !c)}
+        manifestEditorOpen={manifestEditorOpen}
+        onToggleManifestEditor={() => setManifestEditorOpen((o) => !o)}
         onOpenTour={() => setTourActive(true)}
         onReset={handleReset}
       />
@@ -149,6 +158,8 @@ export default function App() {
           />
         </div>
       </div>
+
+      <ManifestEditorPanel open={manifestEditorOpen} onClose={() => setManifestEditorOpen(false)} />
 
       {tourActive && <Tour steps={TOUR_STEPS} onFinish={finishTour} />}
     </div>

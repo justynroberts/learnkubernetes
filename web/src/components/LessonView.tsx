@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, type Variants } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { LessonDetail } from "../types";
@@ -15,6 +15,16 @@ interface Props {
   hasNext: boolean;
   allDone: boolean;
 }
+
+const listVariants: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07 } },
+};
+
+const itemVariants: Variants = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.25, ease: "easeOut" } },
+};
 
 export function LessonView({ lesson, isStepDone, markStep, onRunInTerminal, onNextLesson, hasNext, allDone }: Props) {
   return (
@@ -34,53 +44,57 @@ export function LessonView({ lesson, isStepDone, markStep, onRunInTerminal, onNe
         <ReactMarkdown remarkPlugins={[remarkGfm]}>{lesson.intro}</ReactMarkdown>
       </div>
 
-      <div className="space-y-4">
+      <motion.div variants={listVariants} initial="hidden" animate="show" className="space-y-4">
         {(() => {
           let taskIndex = -1;
           return lesson.steps.map((step) => {
             if (step.kind === "quiz") {
               return (
-                <QuizCard
-                  key={step.id}
-                  lessonId={lesson.id}
-                  step={step}
-                  done={isStepDone(lesson.id, step.id)}
-                  onDone={(pass) => markStep(lesson.id, step.id, pass)}
-                />
+                <motion.div key={step.id} variants={itemVariants}>
+                  <QuizCard
+                    lessonId={lesson.id}
+                    step={step}
+                    done={isStepDone(lesson.id, step.id)}
+                    onDone={(pass) => markStep(lesson.id, step.id, pass)}
+                  />
+                </motion.div>
               );
             }
             taskIndex += 1;
             if (step.kind === "manifest") {
               return (
-                <ManifestCard
-                  key={step.id}
+                <motion.div key={step.id} variants={itemVariants}>
+                  <ManifestCard
+                    lessonId={lesson.id}
+                    index={taskIndex}
+                    step={step}
+                    done={isStepDone(lesson.id, step.id)}
+                    onDone={(pass) => markStep(lesson.id, step.id, pass)}
+                  />
+                </motion.div>
+              );
+            }
+            return (
+              <motion.div key={step.id} variants={itemVariants}>
+                <StepCard
                   lessonId={lesson.id}
                   index={taskIndex}
                   step={step}
                   done={isStepDone(lesson.id, step.id)}
                   onDone={(pass) => markStep(lesson.id, step.id, pass)}
+                  onRunInTerminal={onRunInTerminal}
                 />
-              );
-            }
-            return (
-              <StepCard
-                key={step.id}
-                lessonId={lesson.id}
-                index={taskIndex}
-                step={step}
-                done={isStepDone(lesson.id, step.id)}
-                onDone={(pass) => markStep(lesson.id, step.id, pass)}
-                onRunInTerminal={onRunInTerminal}
-              />
+              </motion.div>
             );
           });
         })()}
-      </div>
+      </motion.div>
 
       {allDone && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
+          initial={{ opacity: 0, scale: 0.9, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ type: "spring", stiffness: 300, damping: 20 }}
           className="mt-8 flex items-center justify-between rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-6 py-5"
         >
           <div>
@@ -88,12 +102,14 @@ export function LessonView({ lesson, isStepDone, markStep, onRunInTerminal, onNe
             <div className="text-sm text-emerald-400/80">Nice work — every check on this page passed on your real cluster.</div>
           </div>
           {hasNext && (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.96 }}
               onClick={onNextLesson}
               className="shrink-0 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-emerald-400"
             >
               Next lesson →
-            </button>
+            </motion.button>
           )}
         </motion.div>
       )}

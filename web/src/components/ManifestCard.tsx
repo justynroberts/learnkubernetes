@@ -68,13 +68,15 @@ export function ManifestCard({ lessonId, index, step, done, onDone }: Props) {
           </div>
 
           <div className="mt-3 flex items-center gap-3">
-            <button
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.95 }}
               onClick={apply}
               disabled={applying}
               className="rounded-lg bg-pd-green px-3 py-1.5 text-sm font-medium text-white transition hover:opacity-90 disabled:opacity-50"
             >
               {applying ? "Applying…" : "Apply"}
-            </button>
+            </motion.button>
             <button
               onClick={() => setYaml(step.template)}
               className="text-sm text-slate-500 hover:text-slate-300"

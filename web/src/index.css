@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, sans-serif;
+  --font-sans: "Bricolage Grotesque", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
   --color-bg: #0a0f0c;
   --color-panel: #10160f;
@@ -77,4 +77,50 @@ body {
 
 .xterm-viewport::-webkit-scrollbar {
   width: 8px;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+.progress-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.progress-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+  animation: shimmer 2.2s ease-in-out infinite;
+}
+
+@keyframes float-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+.float-slow {
+  animation: float-y 3.5s ease-in-out infinite;
+}
+
+.btn-pop {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.btn-pop:hover {
+  transform: translateY(-1px) scale(1.02);
+}
+.btn-pop:active {
+  transform: translateY(0) scale(0.96);
 }

@@ -55,8 +55,10 @@ export function QuizCard({ lessonId, step, done, onDone }: Props) {
               const isSelected = selected === i;
               const showCorrectness = result !== null && isSelected;
               return (
-                <button
+                <motion.button
                   key={i}
+                  whileHover={!submitting && !result?.pass ? { x: 3 } : undefined}
+                  whileTap={!submitting && !result?.pass ? { scale: 0.98 } : undefined}
                   disabled={submitting || result?.pass}
                   onClick={() => submit(i)}
                   className={clsx(
@@ -67,7 +69,7 @@ export function QuizCard({ lessonId, step, done, onDone }: Props) {
                   )}
                 >
                   {opt}
-                </button>
+                </motion.button>
               );
             })}
           </div>
@@ -75,9 +77,10 @@ export function QuizCard({ lessonId, step, done, onDone }: Props) {
           <AnimatePresence>
             {result && (
               <motion.p
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
+                initial={{ opacity: 0, y: -4, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0 }}
+                transition={result.pass ? { type: "spring", stiffness: 400, damping: 15 } : { duration: 0.2 }}
                 className={clsx(
                   "mt-3 rounded-md px-3 py-2 text-sm",
                   result.pass ? "bg-emerald-500/10 text-emerald-300" : "bg-rose-500/10 text-rose-300",
