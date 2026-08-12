@@ -1,72 +1,121 @@
 # PagerDuty Kubernetes Academy
 
-An interactive, hands-on Kubernetes course that runs against your **real local
-cluster** (Rancher Desktop). Every lesson's "Validate" button actually queries your
-cluster's live state — nothing is faked. Most lessons also include a quiz question
-to check conceptual understanding, not just command recall.
+Learn Kubernetes by actually using it. This is a 17-lesson course that runs in your
+browser and works against a real Kubernetes cluster on your own machine — when a
+lesson says "create a Deployment", you create a real one, and the **Validate** button
+checks your real cluster to see whether it worked. Nothing is simulated.
 
-## What's inside
+You don't need any Kubernetes experience to start.
 
-- `server/` — Express API + validation engine. Runs `kubectl` against the
-  `rancher-desktop` context to check whether each lesson step's task is actually
-  done, and hosts a WebSocket bridge (`node-pty`) that gives the browser a real
-  terminal.
-- `web/` — React + Vite + Tailwind frontend: lesson sidebar with progress, markdown
-  lesson content, step-by-step tasks and quizzes, an embedded terminal.
+## Getting started
 
-17 lessons: cluster basics, Core Concepts, Namespaces, Pods, Labels & Selectors,
-Deployments, Scaling, Services, ConfigMaps, Secrets, Health Probes, Rolling Updates &
-Rollbacks, Volumes, Jobs & CronJobs, Troubleshooting, a capstone that deploys a real
-**PagerDuty Runbook Automation** runner, and a final recap/graduation.
+Two free programs to install, once, and then the course itself.
 
-Every lesson opens with the same cluster diagram, with the part you're about to work
-in lit up — Pods inside a node, a Namespace spanning all of them, a Service in front
-of them, and so on. It's drawn from live cluster data: your node's real name, and
-faded extra nodes making it obvious that a local Rancher Desktop cluster has exactly
-one, where production would have several. Lesson 2 (Core Concepts) walks the whole
-picture and lets you click through it. Each lesson declares which region to highlight
-via its `focus` field in `server/src/lessons/*.ts`.
+**1. Rancher Desktop** — this is what gives you a Kubernetes cluster on your laptop.
 
-The capstone (lesson 16) requires access to a PagerDuty Runbook Automation instance
-to generate a Runner's Server URL / Client ID / Token (Runner Management page).
-Validation checks that the deployed runner Pod is actually `Running` and `Ready`,
-not just that the manifest looks right. Note: the current Runner image is published
-for `linux/amd64` only — on Apple Silicon Macs, Rancher Desktop's `arm64` node can't
-run it as-is (the lesson explains this if you hit it).
+Download it from [rancherdesktop.io](https://rancherdesktop.io), install it, and open
+it. Go to **Preferences → Kubernetes** and make sure **Enable Kubernetes** is ticked.
+Then wait for its status indicator to turn green — the first startup takes a few
+minutes while it downloads things. Leave it running in the background whenever you're
+doing the course.
 
-## Prerequisites
+**2. Node.js** — download the "LTS" version from [nodejs.org](https://nodejs.org).
+Any version 20 or newer is fine.
 
-- Rancher Desktop running with Kubernetes enabled (this targets the
-  `rancher-desktop` kubeconfig context specifically).
-- Node.js 20+.
-
-(macOS/Linux — Windows users, run this under WSL.)
-
-## Running it
+**3. This course.** Open Terminal and run:
 
 ```bash
+git clone https://github.com/justynroberts/learnkubernetes.git
+cd learnkubernetes
 ./start.sh
 ```
 
-That's it. It checks Node/kubectl/Rancher Desktop are actually set up (with a plain-
-English fix if something's missing), installs dependencies on first run only, starts
-both servers, and opens `http://localhost:5173` in your browser automatically once
-it's ready. Re-running it is always safe — it skips whatever's already done, and
-tells you plainly if the app is already running instead of erroring cryptically.
+That's the whole thing. `start.sh` checks everything is set up, installs what it needs
+the first time (this takes a minute or two), starts the course, and opens it in your
+browser at **http://localhost:5173**.
 
-Prefer to run it by hand? `npm install --prefix server && npm install --prefix web
-&& npm run dev` does the same thing without the checks, starting the API/terminal
-server on `:4000` and the frontend on `:5173`.
+Leave that Terminal window open while you're using the course — it's running the app.
+Press **Ctrl+C** in it when you want to stop.
 
-All lesson exercises live in a dedicated `k8s-academy` namespace, created
-automatically on first run, so this never touches anything else on your cluster.
-The "Reset course" button in the header deletes and recreates that namespace and
-clears your local progress, if you want to start over.
+Next time you want to pick up where you left off: start Rancher Desktop, then run
+`./start.sh` from the `learnkubernetes` folder again. Your progress is saved.
 
-## How validation works
+### If something goes wrong
 
-Each lesson step ships with a small server-side check (`server/src/lessons/*.ts`)
-that runs real `kubectl get`/`describe`-style queries against the `k8s-academy`
-namespace and inspects the JSON response — e.g. "does the `web` Deployment have
-`readyReplicas == 4`?". There's no simulated state; if you complete the step by hand
-in your own terminal instead of the embedded one, validation still passes.
+`start.sh` checks the common problems before it starts and tells you in plain English
+what to fix — Rancher Desktop not running, Kubernetes not switched on, Node.js
+missing or too old. Fix what it mentions and run `./start.sh` again. Re-running it is
+always safe; it skips anything already done.
+
+If it says a port is already in use, the course is probably already running — just
+open http://localhost:5173.
+
+On Windows, run all of this inside WSL. On macOS and Linux it works as-is.
+
+## What the course does to your computer
+
+Everything you create during the lessons goes into its own separate area of the
+cluster (a namespace called `k8s-academy`), so it can't disturb anything else you
+might have running. The **Reset course** button in the top-right deletes all of it and
+clears your progress, if you want a clean start.
+
+## What you'll learn
+
+17 lessons, each with hands-on steps and a quiz:
+
+Cluster basics · Core Concepts · Namespaces · Pods · Labels & Selectors · Deployments
+· Scaling · Services · ConfigMaps · Secrets · Health Probes · Rolling Updates &
+Rollbacks · Volumes · Jobs & CronJobs · Troubleshooting · a real-world capstone · a
+recap
+
+Every lesson opens with a diagram of a cluster, with the piece you're about to work on
+lit up, so you can always see where the thing you're creating actually lives. It's
+drawn from your own cluster — your real node name, and faded extra nodes to show what
+a production cluster looks like compared to the single-node one on your laptop. Lesson
+2 walks through the whole diagram.
+
+There's also a built-in terminal, which you open with the **Terminal** button at the
+top. It's a real terminal on your machine, so you can either click **Run** on a
+lesson's command to send it there, or type commands yourself. Working in your own separate terminal instead works too —
+validation looks at the cluster, not at what you typed.
+
+### About the capstone (lesson 16)
+
+The final project deploys a genuine **PagerDuty Runbook Automation** runner, using
+everything from the course. To do it you'll need access to a Runbook Automation
+instance, so you can create a runner and get its Server URL, Client ID and Token from
+the Runner Management page. If you don't manage one yourself, ask whoever does.
+
+Heads-up for Apple Silicon Macs (M1 and later): the runner image is currently built
+for Intel only, so it won't start on your `arm64` cluster. The lesson explains this if
+you hit it, and you can point it at a newer image once one is published.
+
+---
+
+## For developers
+
+Two workspaces, run together by the root `npm run dev` (which is what `start.sh`
+calls):
+
+- `server/` — Express API and the validation engine. Runs `kubectl` against the
+  `rancher-desktop` context to check whether each step's task was actually done, and
+  hosts a WebSocket bridge (`node-pty`) backing the in-browser terminal. Listens on
+  `:4000`.
+- `web/` — React + Vite + Tailwind frontend. Listens on `:5173` and proxies `/api`
+  and `/pty` to the server.
+
+To skip the preflight checks: `npm install --prefix server && npm install --prefix web
+&& npm run dev`.
+
+**Lessons** are TypeScript modules in `server/src/lessons/*.ts`, one per lesson,
+registered in `index.ts`. Each has an `intro`, a `focus` naming the region of the
+cluster diagram to highlight, and a list of steps — `task` (run a command), `quiz`, or
+`manifest` (edit YAML in the drawer and apply it). Quiz answers and validator
+functions are stripped server-side before a lesson is sent to the browser.
+
+**Validation** is a small `check()` per step that runs real `kubectl get`-style
+queries against the `k8s-academy` namespace and inspects the JSON — e.g. "does the
+`web` Deployment have `readyReplicas == 4`?". There is no simulated state anywhere.
+
+**Configuration** via environment variables: `KUBE_CONTEXT`, `TRAINING_NAMESPACE` and
+`RUNNER_IMAGE` (all in `server/src/kube.ts`), plus `PORT` in `server/src/index.ts`.
