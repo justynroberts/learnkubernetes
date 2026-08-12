@@ -14,9 +14,10 @@ const PATCH = JSON.stringify({
 
 export const volumes: Lesson = {
   id: "volumes",
-  order: 12,
+  order: 13,
   title: "Volumes",
   concept: "Volumes",
+  focus: "volume",
   intro: `
 Container filesystems are ephemeral by default — restart the container and its disk
 is wiped. A **Volume** gives a Pod storage that outlives individual container

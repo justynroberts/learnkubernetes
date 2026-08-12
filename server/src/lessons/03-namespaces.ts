@@ -3,9 +3,10 @@ import { NAMESPACE, kubectl, namespaceExists } from "../kube.js";
 
 export const namespaces: Lesson = {
   id: "namespaces",
-  order: 2,
+  order: 3,
   title: "Namespaces",
   concept: "Namespaces",
+  focus: "namespace",
   intro: `
 A **Namespace** is a way to divide one cluster into multiple virtual clusters. Teams
 and projects usually get their own namespace so their resource names don't collide

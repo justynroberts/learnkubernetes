@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const configmaps: Lesson = {
   id: "configmaps",
-  order: 8,
+  order: 9,
   title: "ConfigMaps",
   concept: "ConfigMaps",
+  focus: "config",
   intro: `
 Hardcoding configuration into a container image is a bad idea — you'd need to
 rebuild the image just to change a setting. A **ConfigMap** stores non-sensitive

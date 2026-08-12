@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson, kubectl } from "../kube.js";
 
 export const rollouts: Lesson = {
   id: "rollouts",
-  order: 11,
+  order: 12,
   title: "Rolling Updates & Rollbacks",
   concept: "Rolling updates and rollbacks",
+  focus: "rollout",
   intro: `
 Deployments update Pods gradually — a **rolling update** replaces old Pods with new
 ones a few at a time, so your app stays available throughout. Every revision is

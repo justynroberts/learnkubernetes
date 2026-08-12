@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson, listResourcesJson } from "../kube.js";
 
 export const scaling: Lesson = {
   id: "scaling",
-  order: 6,
+  order: 7,
   title: "Scaling",
   concept: "Scaling",
+  focus: "replicas",
   intro: `
 Need to handle more traffic? Change one number. The Deployment's controller adds or
 removes Pods until the running count matches the desired count — no manual

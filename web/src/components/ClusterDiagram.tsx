@@ -1,0 +1,561 @@
+import { useMemo, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import clsx from "clsx";
+import type { ClusterFocus, ClusterStatus } from "../types";
+
+/**
+ * One fixed picture of a Kubernetes cluster, drawn once and reused by every
+ * lesson. Each lesson names a `focus` region; that region lights up and the
+ * rest recedes, so "where does this thing actually live?" is answered visually
+ * before the learner runs a single command.
+ *
+ * Node 1 is drawn from live cluster data. Nodes 2 and 3 are ghosts — they show
+ * what production looks like and make it obvious that a local Rancher Desktop
+ * cluster has exactly one node, rather than quietly implying you have three.
+ */
+
+type Region =
+  | "kubectl"
+  | "control-plane"
+  | "api"
+  | "scheduler"
+  | "controllers"
+  | "etcd"
+  | "node-local"
+  | "nodes-remote"
+  | "kubelet"
+  | "namespace"
+  | "pods"
+  | "labels"
+  | "config"
+  | "secret"
+  | "volume"
+  | "service"
+  | "probes"
+  | "job"
+  | "external";
+
+const FOCUS: Record<ClusterFocus, { regions: Region[]; caption: string }> = {
+  all: {
+    regions: [],
+    caption: "The whole map. Pick a piece below to see where it lives.",
+  },
+  "control-plane": {
+    regions: ["kubectl", "control-plane", "api", "scheduler", "controllers", "etcd"],
+    caption: "kubectl → the API server. Every command in this course enters the cluster here.",
+  },
+  namespace: {
+    regions: ["namespace"],
+    caption: "A logical partition of the cluster — it spans every node rather than sitting on one.",
+  },
+  pod: {
+    regions: ["pods", "node-local"],
+    caption: "A Pod: one or more containers, running together on a single node.",
+  },
+  labels: {
+    regions: ["labels", "pods"],
+    caption: "Key/value tags on Pods — how Services and controllers find the Pods they care about.",
+  },
+  deployment: {
+    regions: ["controllers", "pods"],
+    caption: "A controller in the control plane, continuously asking for Pods on the nodes.",
+  },
+  replicas: {
+    regions: ["controllers", "pods"],
+    caption: "More replicas means more Pods, spread across available nodes — all onto node 1 here.",
+  },
+  service: {
+    regions: ["service", "pods"],
+    caption: "A virtual IP and DNS name in front of every Pod matching its selector, on any node.",
+  },
+  config: {
+    regions: ["config", "pods"],
+    caption: "A ConfigMap, injected into the Pod's containers as environment variables or files.",
+  },
+  secret: {
+    regions: ["secret", "pods"],
+    caption: "A Secret — same shape as a ConfigMap, handled differently because the values are sensitive.",
+  },
+  probes: {
+    regions: ["kubelet", "probes", "pods"],
+    caption: "The node's kubelet polling your container, restarting it or pulling it out of a Service.",
+  },
+  rollout: {
+    regions: ["controllers", "pods"],
+    caption: "The Deployment controller swapping Pods a few at a time, old spec out, new spec in.",
+  },
+  volume: {
+    regions: ["volume", "pods"],
+    caption: "Storage defined at the Pod level and mounted into its containers.",
+  },
+  job: {
+    regions: ["job", "controllers"],
+    caption: "A Pod scheduled onto a node like any other — it just runs once and stops.",
+  },
+  troubleshoot: {
+    regions: ["kubectl", "api", "pods"],
+    caption: "get, describe and logs are all reads back through the API server about a Pod.",
+  },
+  external: {
+    regions: ["external", "pods"],
+    caption: "A Pod inside your cluster dialling out to a service that lives outside it.",
+  },
+};
+
+/** Clickable tour of the map, shown on the Core Concepts lesson. */
+const LEGEND: { focus: ClusterFocus; label: string }[] = [
+  { focus: "control-plane", label: "Control plane" },
+  { focus: "pod", label: "Pods" },
+  { focus: "namespace", label: "Namespace" },
+  { focus: "deployment", label: "Controllers" },
+  { focus: "labels", label: "Labels" },
+  { focus: "service", label: "Services" },
+  { focus: "config", label: "Config" },
+  { focus: "volume", label: "Volumes" },
+  { focus: "probes", label: "Probes" },
+  { focus: "external", label: "Outside world" },
+];
+
+const GREEN = "#2fe070";
+const BASE_STROKE = "#33482f";
+const BASE_FILL = "#131b12";
+const TEXT = "#94a3b8";
+const TEXT_BRIGHT = "#e2e8f0";
+const MONO = "var(--font-mono)";
+
+interface Props {
+  focus: ClusterFocus;
+  status: ClusterStatus | null;
+  /** Shows the clickable legend and lets the learner drive the highlight. */
+  interactive?: boolean;
+}
+
+export function ClusterDiagram({ focus, status, interactive = false }: Props) {
+  const [picked, setPicked] = useState<ClusterFocus | null>(null);
+  const effective = picked ?? focus;
+  const { regions, caption } = FOCUS[effective] ?? FOCUS.all;
+  const lit = useMemo(() => new Set(regions), [regions]);
+  const anyLit = lit.size > 0;
+
+  const nodes = status?.nodes ?? [];
+  const localName = nodes[0]?.name ?? "your node";
+  const realNodeCount = nodes.length;
+  const namespace = status?.namespace ?? "k8s-academy";
+
+  /** Visual state for a region: lit, normal, or pushed back behind the highlight. */
+  function on(region: Region) {
+    return lit.has(region);
+  }
+  function group(region: Region) {
+    return {
+      opacity: !anyLit ? 1 : on(region) ? 1 : 0.28,
+      style: { transition: "opacity 350ms ease" },
+    };
+  }
+  function stroke(region: Region) {
+    return on(region) ? GREEN : BASE_STROKE;
+  }
+  function fill(region: Region) {
+    return on(region) ? "#0e2416" : BASE_FILL;
+  }
+  function label(region: Region) {
+    return on(region) ? "#d1fae5" : TEXT;
+  }
+
+  const podXs = [112, 207, 302];
+
+  return (
+    <div className="rounded-xl border border-slate-700/60 p-4" style={{ background: "var(--color-panel)" }}>
+      <svg
+        viewBox="0 0 720 500"
+        className="w-full"
+        role="img"
+        aria-label={`Diagram of a Kubernetes cluster. ${caption}`}
+      >
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill={GREEN} />
+          </marker>
+          <marker id="arrow-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill="#3f5c3b" />
+          </marker>
+        </defs>
+
+        {/* ---- cluster boundary ---- */}
+        <rect x="92" y="6" width="622" height="446" rx="14" fill="#0c120b" stroke="#2a3d27" strokeWidth="1.5" />
+        <text x="104" y="24" fontSize="9.5" fill="#5f7a5b" letterSpacing="1.6">
+          CLUSTER · {status?.context ?? "rancher-desktop"}
+        </text>
+
+        {/* ---- you / kubectl ---- */}
+        <g {...group("kubectl")}>
+          <rect x="8" y="200" width="76" height="48" rx="8" fill={fill("kubectl")} stroke={stroke("kubectl")} />
+          <text x="46" y="221" fontSize="11" fontFamily={MONO} fill={label("kubectl")} textAnchor="middle">
+            kubectl
+          </text>
+          <text x="46" y="236" fontSize="8.5" fill="#5f7a5b" textAnchor="middle">
+            you
+          </text>
+          <path
+            d="M84,212 C 94,196 92,120 102,80"
+            fill="none"
+            stroke={on("kubectl") ? GREEN : "#3f5c3b"}
+            strokeWidth="1.4"
+            strokeDasharray="4 3"
+            markerEnd={on("kubectl") ? "url(#arrow)" : "url(#arrow-dim)"}
+          />
+        </g>
+
+        {/* ---- control plane ---- */}
+        <g {...group("control-plane")}>
+          <rect
+            x="100"
+            y="32"
+            width="606"
+            height="80"
+            rx="10"
+            fill={on("control-plane") ? "#0e2416" : "#101810"}
+            stroke={stroke("control-plane")}
+          />
+          <text x="112" y="48" fontSize="9.5" fill={label("control-plane")} letterSpacing="1.4">
+            CONTROL PLANE
+          </text>
+          {realNodeCount === 1 && (
+            <text x="694" y="48" fontSize="8.5" fill="#5f7a5b" textAnchor="end">
+              on k3s this runs on the same node as your workloads
+            </text>
+          )}
+        </g>
+
+        {(
+          [
+            { region: "api" as Region, x: 104, name: "API server", sub: "the front door" },
+            { region: "scheduler" as Region, x: 256, name: "Scheduler", sub: "picks a node" },
+            { region: "controllers" as Region, x: 408, name: "Controllers", sub: "Deployments, Jobs" },
+            { region: "etcd" as Region, x: 560, name: "etcd", sub: "desired state" },
+          ] as const
+        ).map((chip) => (
+          <g key={chip.region} {...group(chip.region)}>
+            <rect
+              x={chip.x}
+              y="54"
+              width="142"
+              height="44"
+              rx="7"
+              fill={fill(chip.region)}
+              stroke={stroke(chip.region)}
+            />
+            <text x={chip.x + 71} y="74" fontSize="11" fill={on(chip.region) ? "#eafff2" : TEXT_BRIGHT} textAnchor="middle">
+              {chip.name}
+            </text>
+            <text x={chip.x + 71} y="88" fontSize="8.5" fill="#5f7a5b" textAnchor="middle">
+              {chip.sub}
+            </text>
+          </g>
+        ))}
+
+        <path
+          d="M300,112 L300,136"
+          stroke="#3f5c3b"
+          strokeWidth="1.2"
+          strokeDasharray="3 3"
+          markerEnd="url(#arrow-dim)"
+        />
+        <text x="310" y="130" fontSize="8.5" fill="#5f7a5b">
+          schedules &amp; reconciles onto nodes
+        </text>
+
+        {/* ---- local node ---- */}
+        <g {...group("node-local")}>
+          <rect
+            x="100"
+            y="140"
+            width="300"
+            height="300"
+            rx="10"
+            fill={on("node-local") ? "#0e2416" : "#101810"}
+            stroke={stroke("node-local")}
+          />
+          <text x="112" y="160" fontSize="10" fontFamily={MONO} fill={on("node-local") ? "#eafff2" : TEXT_BRIGHT}>
+            {localName}
+          </text>
+          <text x="112" y="172" fontSize="8.5" fill="#5f7a5b">
+            {realNodeCount === 1 ? "your only node · control plane + worker" : "node 1"}
+          </text>
+        </g>
+
+        <g {...group("kubelet")}>
+          <rect x="110" y="176" width="88" height="20" rx="5" fill={fill("kubelet")} stroke={stroke("kubelet")} />
+          <text x="154" y="190" fontSize="9.5" fontFamily={MONO} fill={label("kubelet")} textAnchor="middle">
+            kubelet
+          </text>
+          <rect x="206" y="176" width="110" height="20" rx="5" fill={BASE_FILL} stroke={BASE_STROKE} />
+          <text x="261" y="190" fontSize="9.5" fontFamily={MONO} fill={TEXT} textAnchor="middle">
+            containerd
+          </text>
+        </g>
+
+        {/* ---- ghost nodes: what production looks like ---- */}
+        <g {...group("nodes-remote")} opacity={anyLit && !on("nodes-remote") ? 0.16 : 0.45}>
+          {[
+            { x: 410, w: 148, name: "node-2" },
+            { x: 568, w: 138, name: "node-3" },
+          ].map((n) => (
+            <g key={n.name}>
+              <rect
+                x={n.x}
+                y="140"
+                width={n.w}
+                height="300"
+                rx="10"
+                fill="#0d130c"
+                stroke="#3a4d37"
+                strokeDasharray="6 4"
+              />
+              <text x={n.x + 12} y="160" fontSize="10" fontFamily={MONO} fill="#7f9a7b">
+                {n.name}
+              </text>
+              <text x={n.x + 12} y="172" fontSize="8.5" fill="#5f7a5b">
+                not on your laptop
+              </text>
+              <rect
+                x={n.x + (n.w - 86) / 2}
+                y="214"
+                width="86"
+                height="136"
+                rx="7"
+                fill="#101810"
+                stroke="#3a4d37"
+                strokeDasharray="4 3"
+              />
+              <text x={n.x + n.w / 2} y="286" fontSize="9.5" fill="#5f7a5b" textAnchor="middle">
+                Pod
+              </text>
+            </g>
+          ))}
+        </g>
+
+        {/* Kept out of the ghost group above so it never fades — the whole
+            point of drawing three nodes is that you only have one. */}
+        <text x="558" y="412" fontSize="8.5" fill="#7f9a7b" textAnchor="middle">
+          production spreads Pods across many nodes
+        </text>
+        <text x="558" y="426" fontSize="8.5" fill="#7f9a7b" textAnchor="middle">
+          {realNodeCount === 1 ? "— your cluster has exactly one" : `— yours has ${realNodeCount}`}
+        </text>
+
+        {/* ---- namespace: logical, spans every node ---- */}
+        <g {...group("namespace")}>
+          <rect
+            x="106"
+            y="204"
+            width="594"
+            height="228"
+            rx="10"
+            fill="none"
+            stroke={on("namespace") ? GREEN : "#3f5c3b"}
+            strokeWidth={on("namespace") ? 1.8 : 1.2}
+            strokeDasharray="7 5"
+          />
+          <rect x="112" y="196" width="196" height="16" rx="4" fill="#0c120b" />
+          <text x="118" y="208" fontSize="9.5" fontFamily={MONO} fill={on("namespace") ? GREEN : "#7f9a7b"}>
+            namespace: {namespace}
+          </text>
+          <rect x="592" y="196" width="112" height="16" rx="4" fill="#0c120b" />
+          <text x="698" y="208" fontSize="8.5" fill="#5f7a5b" textAnchor="end">
+            logical, not physical
+          </text>
+        </g>
+
+        {/* ---- pods on the local node ---- */}
+        <g {...group("pods")}>
+          {podXs.map((px, i) => (
+            <g key={px}>
+              <rect x={px} y="214" width="86" height="136" rx="7" fill={fill("pods")} stroke={stroke("pods")} />
+              <text x={px + 8} y="228" fontSize="9.5" fill={label("pods")}>
+                Pod
+              </text>
+              <rect x={px + 7} y="256" width="72" height="34" rx="5" fill="#0b110a" stroke={on("pods") ? "#1e7a45" : "#2b3b29"} />
+              <text x={px + 43} y="277" fontSize="9.5" fontFamily={MONO} fill={on("pods") ? "#9ef0bf" : TEXT} textAnchor="middle">
+                nginx
+              </text>
+              {i > 0 && (
+                <text x={px + 43} y="308" fontSize="8.5" fill="#5f7a5b" textAnchor="middle">
+                  same Pod spec
+                </text>
+              )}
+            </g>
+          ))}
+        </g>
+
+        {/* ---- labels on those pods ---- */}
+        <g {...group("labels")}>
+          {podXs.map((px) => (
+            <g key={px}>
+              <rect x={px + 7} y="234" width="72" height="15" rx="4" fill={fill("labels")} stroke={stroke("labels")} />
+              <text x={px + 43} y="245" fontSize="8.5" fontFamily={MONO} fill={label("labels")} textAnchor="middle">
+                app=web
+              </text>
+            </g>
+          ))}
+        </g>
+
+        {/* ---- config / secret / volume, mounted into the first Pod ---- */}
+        {(
+          [
+            { region: "config" as Region, y: 296, text: "env: ConfigMap" },
+            { region: "secret" as Region, y: 314, text: "env: Secret" },
+            { region: "volume" as Region, y: 332, text: "vol: /cache" },
+          ] as const
+        ).map((chip) => (
+          <g key={chip.region} {...group(chip.region)}>
+            <rect
+              x={podXs[0] + 7}
+              y={chip.y}
+              width="72"
+              height="14"
+              rx="4"
+              fill={fill(chip.region)}
+              stroke={stroke(chip.region)}
+            />
+            <text
+              x={podXs[0] + 43}
+              y={chip.y + 10}
+              fontSize="8"
+              fontFamily={MONO}
+              fill={label(chip.region)}
+              textAnchor="middle"
+            >
+              {chip.text}
+            </text>
+          </g>
+        ))}
+
+        {/* ---- probes: the kubelet checking the container ---- */}
+        <g {...group("probes")}>
+          <path
+            d="M154,196 C 154,204 152,206 152,212"
+            fill="none"
+            stroke={on("probes") ? GREEN : "#3f5c3b"}
+            strokeWidth="1.3"
+            markerEnd={on("probes") ? "url(#arrow)" : "url(#arrow-dim)"}
+          />
+          <circle cx={podXs[0] + 78} cy="222" r="4" fill={on("probes") ? GREEN : "#2b3b29"} />
+          {on("probes") && (
+            <text x="322" y="190" fontSize="8.5" fill={GREEN}>
+              liveness / readiness
+            </text>
+          )}
+        </g>
+
+        {/* ---- service: one virtual IP in front of every matching Pod ---- */}
+        <g {...group("service")}>
+          {[155, 250, 345, 484, 637].map((cx) => (
+            <path
+              key={cx}
+              d={`M${cx},364 L${cx},350`}
+              stroke={on("service") ? GREEN : "#3f5c3b"}
+              strokeWidth="1.1"
+              strokeDasharray="3 2"
+            />
+          ))}
+          <rect
+            x="112"
+            y="364"
+            width="582"
+            height="30"
+            rx="7"
+            fill={fill("service")}
+            stroke={stroke("service")}
+          />
+          <text x="122" y="383" fontSize="9.5" fontFamily={MONO} fill={label("service")}>
+            Service web-svc
+          </text>
+          <text x="684" y="383" fontSize="8.5" fill="#5f7a5b" textAnchor="end">
+            stable ClusterIP + DNS · load-balances to every matching Pod, on any node
+          </text>
+        </g>
+
+        {/* ---- batch work ---- */}
+        <g {...group("job")}>
+          <rect x="112" y="402" width="230" height="22" rx="5" fill={fill("job")} stroke={stroke("job")} strokeDasharray="4 3" />
+          <text x="122" y="417" fontSize="8.5" fontFamily={MONO} fill={label("job")}>
+            Job Pod · runs once → Completed
+          </text>
+        </g>
+
+        {/* ---- outside the cluster ---- */}
+        <g {...group("external")}>
+          <path
+            d="M400,452 L400,464"
+            stroke={on("external") ? GREEN : "#3f5c3b"}
+            strokeWidth="1.3"
+            strokeDasharray="4 3"
+            markerEnd={on("external") ? "url(#arrow)" : "url(#arrow-dim)"}
+          />
+          <rect
+            x="100"
+            y="466"
+            width="606"
+            height="28"
+            rx="8"
+            fill={on("external") ? "#0e2416" : "#0d130c"}
+            stroke={on("external") ? GREEN : "#3a4d37"}
+            strokeDasharray="6 4"
+          />
+          <text x="403" y="484" fontSize="9.5" fill={label("external")} textAnchor="middle">
+            PagerDuty Runbook Automation (SaaS) — outside the cluster, reached by an outbound connection
+          </text>
+        </g>
+      </svg>
+
+      <div className="mt-3 flex items-start gap-2 border-t border-slate-700/50 pt-3">
+        <span className="mt-px shrink-0 text-[11px] font-semibold tracking-wide text-pd-green uppercase">
+          You are here
+        </span>
+        <AnimatePresence mode="wait">
+          <motion.span
+            key={effective}
+            initial={{ opacity: 0, y: -3 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            className="text-[13px] leading-snug text-slate-400"
+          >
+            {caption}
+          </motion.span>
+        </AnimatePresence>
+      </div>
+
+      {interactive && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {LEGEND.map((item) => {
+            const active = picked === item.focus;
+            return (
+              <button
+                key={item.focus}
+                onClick={() => setPicked(active ? null : item.focus)}
+                className={clsx(
+                  "rounded-full border px-2.5 py-1 text-[11px] transition-colors",
+                  active
+                    ? "border-pd-green bg-pd-green/15 text-pd-green-light"
+                    : "border-slate-700/70 text-slate-500 hover:border-slate-600 hover:text-slate-300",
+                )}
+              >
+                {item.label}
+              </button>
+            );
+          })}
+          {picked && (
+            <button
+              onClick={() => setPicked(null)}
+              className="rounded-full px-2.5 py-1 text-[11px] text-slate-600 hover:text-slate-400"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}

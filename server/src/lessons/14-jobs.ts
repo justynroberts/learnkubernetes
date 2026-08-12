@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const jobs: Lesson = {
   id: "jobs",
-  order: 13,
+  order: 14,
   title: "Jobs & CronJobs",
   concept: "Jobs and CronJobs",
+  focus: "job",
   intro: `
 Not everything is a long-running server. A **Job** runs a Pod to completion —
 perfect for a batch task, a migration, a one-off script — and tracks success rather

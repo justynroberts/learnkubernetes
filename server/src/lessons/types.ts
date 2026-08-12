@@ -3,6 +3,29 @@ export interface CheckResult {
   message: string;
 }
 
+/**
+ * Which part of the cluster diagram a lesson is about. The frontend draws one
+ * fixed picture of a cluster and lights up the region named here, so a learner
+ * always knows *where* the thing they're creating actually lives.
+ */
+export type ClusterFocus =
+  | "all"
+  | "control-plane"
+  | "namespace"
+  | "pod"
+  | "labels"
+  | "deployment"
+  | "replicas"
+  | "service"
+  | "config"
+  | "secret"
+  | "probes"
+  | "rollout"
+  | "volume"
+  | "job"
+  | "troubleshoot"
+  | "external";
+
 export interface TaskStep {
   kind: "task";
   id: string;
@@ -44,6 +67,8 @@ export interface Lesson {
   order: number;
   title: string;
   concept: string;
+  /** Region of the cluster diagram to highlight while this lesson is open. */
+  focus: ClusterFocus;
   /** Markdown explaining the concept before the hands-on steps. */
   intro: string;
   steps: Step[];
@@ -67,6 +92,7 @@ export interface LessonDetail {
   order: number;
   title: string;
   concept: string;
+  focus: ClusterFocus;
   intro: string;
   steps: StepDetail[];
 }
@@ -81,6 +107,7 @@ export function toDetail(l: Lesson): LessonDetail {
     order: l.order,
     title: l.title,
     concept: l.concept,
+    focus: l.focus,
     intro: l.intro,
     steps: l.steps.map((step): StepDetail => {
       if (step.kind === "quiz") {

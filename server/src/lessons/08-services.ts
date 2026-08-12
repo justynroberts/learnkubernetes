@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const services: Lesson = {
   id: "services",
-  order: 7,
+  order: 8,
   title: "Services",
   concept: "Services",
+  focus: "service",
   intro: `
 Pods are ephemeral — they get replaced and get new IPs constantly. A **Service**
 gives a stable virtual IP and DNS name that load-balances traffic across whichever

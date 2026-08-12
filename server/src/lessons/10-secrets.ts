@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const secrets: Lesson = {
   id: "secrets",
-  order: 9,
+  order: 10,
   title: "Secrets",
   concept: "Secrets",
+  focus: "secret",
   intro: `
 **Secrets** are almost identical to ConfigMaps in shape, but intended for sensitive
 data — passwords, tokens, keys. Kubernetes stores their values base64-encoded and

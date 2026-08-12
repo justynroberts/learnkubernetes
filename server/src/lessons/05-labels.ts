@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson, listResourcesJson } from "../kube.js";
 
 export const labels: Lesson = {
   id: "labels",
-  order: 4,
+  order: 5,
   title: "Labels & Selectors",
   concept: "Labels and selectors",
+  focus: "labels",
   intro: `
 **Labels** are key/value tags you attach to objects. **Selectors** let other objects
 (Services, Deployments, ReplicaSets...) find the Pods they care about by matching

@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const deployments: Lesson = {
   id: "deployments",
-  order: 5,
+  order: 6,
   title: "Deployments",
   concept: "Deployments",
+  focus: "deployment",
   intro: `
 Managing individual Pods by hand doesn't scale — if one crashes, nothing brings it
 back. A **Deployment** describes the *desired state* of a set of identical Pods

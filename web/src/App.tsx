@@ -16,12 +16,17 @@ const TOUR_STEPS: TourStep[] = [
   {
     selector: '[data-tour="brand"]',
     title: "Welcome to PagerDuty Kubernetes Academy",
-    body: "16 hands-on lessons, from cluster basics to deploying a real Runbook Automation runner. Every check runs against your actual cluster.",
+    body: "17 hands-on lessons, from cluster basics to deploying a real Runbook Automation runner. Every check runs against your actual cluster.",
   },
   {
     selector: '[data-tour="sidebar"]',
     title: "Your lessons",
     body: "Work through these in order, or jump around. Progress is saved automatically in your browser.",
+  },
+  {
+    selector: '[data-tour="cluster-map"]',
+    title: "Where things live",
+    body: "The same cluster map appears on every lesson, with the part you're about to work on lit up. Lesson 2 walks through the whole thing.",
   },
   {
     selector: '[data-tour="terminal-toggle"]',
@@ -177,6 +182,7 @@ export default function App() {
             {activeLesson ? (
               <LessonView
                 lesson={activeLesson}
+                status={status}
                 isStepDone={isStepDone}
                 markStep={markStep}
                 onRunInTerminal={(cmd) => {

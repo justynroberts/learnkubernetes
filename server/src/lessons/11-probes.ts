@@ -19,9 +19,10 @@ const PATCH = JSON.stringify({
 
 export const probes: Lesson = {
   id: "probes",
-  order: 10,
+  order: 11,
   title: "Health Probes",
   concept: "Liveness & readiness probes",
+  focus: "probes",
   intro: `
 Kubernetes can't know if your app is actually healthy just because the process is
 running. **Liveness probes** tell it "restart me if this fails" (recovers from a

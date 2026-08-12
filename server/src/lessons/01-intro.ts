@@ -6,6 +6,7 @@ export const intro: Lesson = {
   order: 1,
   title: "Welcome to the Cluster",
   concept: "Cluster architecture",
+  focus: "control-plane",
   intro: `
 Kubernetes runs your applications across a **cluster** of machines called **nodes**.
 One or more nodes act as the **control plane** (the brain: API server, scheduler,

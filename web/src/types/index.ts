@@ -1,3 +1,22 @@
+/** Region of the cluster diagram a lesson is about — mirrors the server's ClusterFocus. */
+export type ClusterFocus =
+  | "all"
+  | "control-plane"
+  | "namespace"
+  | "pod"
+  | "labels"
+  | "deployment"
+  | "replicas"
+  | "service"
+  | "config"
+  | "secret"
+  | "probes"
+  | "rollout"
+  | "volume"
+  | "job"
+  | "troubleshoot"
+  | "external";
+
 export interface LessonSummary {
   id: string;
   order: number;
@@ -38,6 +57,7 @@ export interface LessonDetail {
   order: number;
   title: string;
   concept: string;
+  focus: ClusterFocus;
   intro: string;
   steps: StepDetail[];
 }

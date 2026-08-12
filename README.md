@@ -14,12 +14,20 @@ to check conceptual understanding, not just command recall.
 - `web/` — React + Vite + Tailwind frontend: lesson sidebar with progress, markdown
   lesson content, step-by-step tasks and quizzes, an embedded terminal.
 
-16 lessons: cluster basics, Namespaces, Pods, Labels & Selectors, Deployments,
-Scaling, Services, ConfigMaps, Secrets, Health Probes, Rolling Updates & Rollbacks,
-Volumes, Jobs & CronJobs, Troubleshooting, a capstone that deploys a real **PagerDuty
-Runbook Automation** runner, and a final recap/graduation.
+17 lessons: cluster basics, Core Concepts, Namespaces, Pods, Labels & Selectors,
+Deployments, Scaling, Services, ConfigMaps, Secrets, Health Probes, Rolling Updates &
+Rollbacks, Volumes, Jobs & CronJobs, Troubleshooting, a capstone that deploys a real
+**PagerDuty Runbook Automation** runner, and a final recap/graduation.
 
-The capstone (lesson 15) requires access to a PagerDuty Runbook Automation instance
+Every lesson opens with the same cluster diagram, with the part you're about to work
+in lit up — Pods inside a node, a Namespace spanning all of them, a Service in front
+of them, and so on. It's drawn from live cluster data: your node's real name, and
+faded extra nodes making it obvious that a local Rancher Desktop cluster has exactly
+one, where production would have several. Lesson 2 (Core Concepts) walks the whole
+picture and lets you click through it. Each lesson declares which region to highlight
+via its `focus` field in `server/src/lessons/*.ts`.
+
+The capstone (lesson 16) requires access to a PagerDuty Runbook Automation instance
 to generate a Runner's Server URL / Client ID / Token (Runner Management page).
 Validation checks that the deployed runner Pod is actually `Running` and `Ready`,
 not just that the manifest looks right. Note: the current Runner image is published

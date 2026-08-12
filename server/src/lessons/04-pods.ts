@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const pods: Lesson = {
   id: "pods",
-  order: 3,
+  order: 4,
   title: "Pods",
   concept: "Pods",
+  focus: "pod",
   intro: `
 A **Pod** is the smallest deployable unit in Kubernetes — one or more containers that
 share a network address and storage, always scheduled together on the same node.

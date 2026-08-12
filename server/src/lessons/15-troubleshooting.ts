@@ -9,9 +9,10 @@ function isBroken(pod: any): boolean {
 
 export const troubleshooting: Lesson = {
   id: "troubleshooting",
-  order: 14,
+  order: 15,
   title: "Troubleshooting",
   concept: "Diagnosing broken workloads",
+  focus: "troubleshoot",
   intro: `
 Things break — a typo'd image name, a crashing process, a missing ConfigMap. The
 three tools you reach for first are always the same: **\`kubectl get\`** to see

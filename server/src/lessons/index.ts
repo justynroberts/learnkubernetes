@@ -1,23 +1,25 @@
 import type { Lesson } from "./types.js";
 import { intro } from "./01-intro.js";
-import { namespaces } from "./02-namespaces.js";
-import { pods } from "./03-pods.js";
-import { labels } from "./04-labels.js";
-import { deployments } from "./05-deployments.js";
-import { scaling } from "./06-scaling.js";
-import { services } from "./07-services.js";
-import { configmaps } from "./08-configmaps.js";
-import { secrets } from "./09-secrets.js";
-import { probes } from "./10-probes.js";
-import { rollouts } from "./11-rollouts.js";
-import { volumes } from "./12-volumes.js";
-import { jobs } from "./13-jobs.js";
-import { troubleshooting } from "./14-troubleshooting.js";
-import { runbookAutomation } from "./15-runbook-automation.js";
-import { recap } from "./16-recap.js";
+import { coreConcepts } from "./02-core-concepts.js";
+import { namespaces } from "./03-namespaces.js";
+import { pods } from "./04-pods.js";
+import { labels } from "./05-labels.js";
+import { deployments } from "./06-deployments.js";
+import { scaling } from "./07-scaling.js";
+import { services } from "./08-services.js";
+import { configmaps } from "./09-configmaps.js";
+import { secrets } from "./10-secrets.js";
+import { probes } from "./11-probes.js";
+import { rollouts } from "./12-rollouts.js";
+import { volumes } from "./13-volumes.js";
+import { jobs } from "./14-jobs.js";
+import { troubleshooting } from "./15-troubleshooting.js";
+import { runbookAutomation } from "./16-runbook-automation.js";
+import { recap } from "./17-recap.js";
 
 export const LESSONS: Lesson[] = [
   intro,
+  coreConcepts,
   namespaces,
   pods,
   labels,

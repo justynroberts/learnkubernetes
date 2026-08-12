@@ -17,9 +17,10 @@ async function findRunnerPod() {
 
 export const runbookAutomation: Lesson = {
   id: "runbook-automation",
-  order: 15,
+  order: 16,
   title: "Deploy a Runbook Automation Runner",
   concept: "A real production workload",
+  focus: "external",
   intro: `
 Time for the real thing. **PagerDuty Runbook Automation** (built on Rundeck) lets you
 execute automation jobs against your infrastructure. A **Runner** is a lightweight

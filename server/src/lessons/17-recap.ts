@@ -3,9 +3,10 @@ import { NAMESPACE, getResourceJson, listResourcesJson, namespaceExists } from "
 
 export const recap: Lesson = {
   id: "recap",
-  order: 16,
+  order: 17,
   title: "Graduation",
   concept: "Putting it all together",
+  focus: "all",
   intro: `
 You've touched Namespaces, Pods, Deployments, Services, ConfigMaps, Secrets, health
 probes, Volumes, Jobs, CronJobs, troubleshooting, and deployed a real Runbook
