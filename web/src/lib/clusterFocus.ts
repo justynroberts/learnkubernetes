@@ -30,7 +30,7 @@ export type Region =
 export const FOCUS: Record<ClusterFocus, { regions: Region[]; caption: string }> = {
   all: {
     regions: [],
-    caption: "The whole map. Pick a piece below to see where it lives.",
+    caption: "Hover any component for what it is and what it does — or pick a piece below.",
   },
   "control-plane": {
     regions: ["kubectl", "control-plane", "api", "scheduler", "controllers", "etcd"],
@@ -112,3 +112,30 @@ export const LEGEND: { focus: ClusterFocus; label: string }[] = [
   { focus: "probes", label: "Probes" },
   { focus: "external", label: "Outside world" },
 ];
+
+/**
+ * The glossary terms behind each region of the map. Hovering a component on
+ * the Core Concepts diagram shows these, so the picture and the glossary can't
+ * drift apart into two separate descriptions of the same thing.
+ */
+export const REGION_TERMS: Record<Region, string[]> = {
+  kubectl: ["kubectl"],
+  "control-plane": ["Control plane"],
+  api: ["API server"],
+  scheduler: ["Scheduler"],
+  controllers: ["Controller", "Deployment"],
+  etcd: ["etcd"],
+  "node-local": ["Node"],
+  "nodes-remote": ["Node"],
+  kubelet: ["kubelet", "Container runtime"],
+  namespace: ["Namespace"],
+  pods: ["Pod", "Container"],
+  labels: ["Label", "Selector"],
+  config: ["ConfigMap"],
+  secret: ["Secret"],
+  volume: ["Volume", "emptyDir"],
+  service: ["Service", "Endpoints"],
+  probes: ["Liveness probe", "Readiness probe"],
+  job: ["Job", "CronJob"],
+  external: ["Runner"],
+};

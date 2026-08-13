@@ -88,7 +88,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         what: "The agent on each node that actually starts and watches containers.",
         detail:
           "It asks the API server which Pods have been assigned to its node, tells the container runtime to start them, and reports their status back. It's also what runs your liveness and readiness probes.",
-        lesson: 11,
+        lesson: 2,
       },
       {
         term: "Container runtime",
@@ -365,3 +365,9 @@ export const GLOSSARY: GlossaryGroup[] = [
     ],
   },
 ];
+
+/** Look up entries by exact term name, preserving the order asked for. */
+export function glossaryEntries(terms: string[]): GlossaryEntry[] {
+  const all = GLOSSARY.flatMap((g) => g.entries);
+  return terms.map((t) => all.find((e) => e.term === t)).filter((e): e is GlossaryEntry => !!e);
+}

@@ -17,8 +17,9 @@ export const coreConcepts: Lesson = {
   focus: "all",
   intro: `
 Before creating anything, it's worth having a picture in your head of *where*
-things live. Use the map above — every lesson from here on highlights the part of
-it you're working in.
+things live. **Hover any component on the map above** for what it is and what it's
+for, or click the labels underneath to walk through it a piece at a time. Every
+lesson from here on highlights the part of the map you're working in.
 
 A **cluster** is the whole box, and it has two halves: a **control plane** that makes
 the decisions, and **nodes** that actually run your containers.

@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";
 import type { ClusterFocus, ClusterStatus } from "../types";
-import { FOCUS, LEGEND, type Region } from "../lib/clusterFocus";
+import { FOCUS, LEGEND, REGION_TERMS, type Region } from "../lib/clusterFocus";
+import { glossaryEntries } from "../lib/glossary";
 
 /**
  * One fixed picture of a Kubernetes cluster, drawn once and reused by every
@@ -31,10 +32,20 @@ interface Props {
 
 export function ClusterDiagram({ focus, status, interactive = false }: Props) {
   const [picked, setPicked] = useState<ClusterFocus | null>(null);
+  const [hovered, setHovered] = useState<Region | null>(null);
+  const [pointer, setPointer] = useState({ x: 0, y: 0 });
+  const wrapRef = useRef<HTMLDivElement>(null);
+
   const effective = picked ?? focus;
   const { regions, caption } = FOCUS[effective] ?? FOCUS.all;
-  const lit = useMemo(() => new Set(regions), [regions]);
+  // Hovering takes over the highlight entirely: light just that component and
+  // push everything else back, so the description card has an obvious subject.
+  const lit = useMemo(
+    () => (hovered ? new Set<Region>([hovered]) : new Set(regions)),
+    [regions, hovered],
+  );
   const anyLit = lit.size > 0;
+  const hoveredEntries = hovered ? glossaryEntries(REGION_TERMS[hovered] ?? []) : [];
 
   const nodes = status?.nodes ?? [];
   const localName = nodes[0]?.name ?? "your node";
@@ -48,7 +59,13 @@ export function ClusterDiagram({ focus, status, interactive = false }: Props) {
   function group(region: Region) {
     return {
       opacity: !anyLit ? 1 : on(region) ? 1 : 0.28,
-      style: { transition: "opacity 350ms ease" },
+      style: { transition: "opacity 350ms ease", cursor: interactive ? "help" : undefined },
+      ...(interactive
+        ? {
+            onMouseEnter: () => setHovered(region),
+            onMouseLeave: () => setHovered((h) => (h === region ? null : h)),
+          }
+        : {}),
     };
   }
   function stroke(region: Region) {
@@ -64,12 +81,25 @@ export function ClusterDiagram({ focus, status, interactive = false }: Props) {
   const podXs = [112, 207, 302];
 
   return (
-    <div className="rounded-xl border border-slate-700/60 p-4" style={{ background: "var(--color-panel)" }}>
+    <div
+      ref={wrapRef}
+      className="relative rounded-xl border border-slate-700/60 p-4"
+      style={{ background: "var(--color-panel)" }}
+    >
       <svg
         viewBox="0 0 720 500"
         className="w-full"
         role="img"
         aria-label={`Diagram of a Kubernetes cluster. ${caption}`}
+        onMouseMove={
+          interactive
+            ? (e) => {
+                const box = wrapRef.current?.getBoundingClientRect();
+                if (box) setPointer({ x: e.clientX - box.left, y: e.clientY - box.top });
+              }
+            : undefined
+        }
+        onMouseLeave={interactive ? () => setHovered(null) : undefined}
       >
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
@@ -408,20 +438,56 @@ export function ClusterDiagram({ focus, status, interactive = false }: Props) {
         </g>
       </svg>
 
+      {/* Hover description. Content comes from the glossary, so the picture and
+          the reference can't drift into two different explanations. */}
+      <AnimatePresence>
+        {hoveredEntries.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.12 }}
+            className="pointer-events-none absolute z-20 w-[300px] rounded-lg border border-pd-green/40 p-3 shadow-2xl"
+            style={{
+              background: "var(--color-panel-2)",
+              left: Math.max(8, Math.min(pointer.x + 18, (wrapRef.current?.clientWidth ?? 720) - 308)),
+              top: pointer.y + (pointer.y > (wrapRef.current?.clientHeight ?? 500) * 0.55 ? -14 : 18),
+              transform:
+                pointer.y > (wrapRef.current?.clientHeight ?? 500) * 0.55 ? "translateY(-100%)" : undefined,
+            }}
+          >
+            {hoveredEntries.map((entry, idx) => (
+              <div key={entry.term} className={idx > 0 ? "mt-2.5 border-t border-slate-700/50 pt-2.5" : undefined}>
+                <div className="flex items-baseline justify-between gap-2">
+                  <h5 className="text-sm font-semibold text-slate-100">{entry.term}</h5>
+                  {entry.lesson !== undefined && (
+                    <span className="shrink-0 text-[10px] text-slate-600">Lesson {entry.lesson}</span>
+                  )}
+                </div>
+                <p className="mt-0.5 text-[12.5px] leading-snug text-slate-300">{entry.what}</p>
+                {idx === 0 && (
+                  <p className="mt-1 text-[12px] leading-relaxed text-slate-500">{entry.detail}</p>
+                )}
+              </div>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="mt-3 flex items-start gap-2 border-t border-slate-700/50 pt-3">
         <span className="mt-px shrink-0 text-[11px] font-semibold tracking-wide text-pd-green uppercase">
           You are here
         </span>
         <AnimatePresence mode="wait">
           <motion.span
-            key={effective}
+            key={hovered ?? effective}
             initial={{ opacity: 0, y: -3 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             className="text-[13px] leading-snug text-slate-400"
           >
-            {caption}
+            {hovered ? `${hoveredEntries[0]?.term ?? ""} — ${hoveredEntries[0]?.what ?? ""}` : caption}
           </motion.span>
         </AnimatePresence>
       </div>
