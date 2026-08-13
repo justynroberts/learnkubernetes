@@ -3,7 +3,9 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 
 export interface TourStep {
-  selector: string;
+  /** Element to spotlight. Omit for a centred card with no target — the
+      welcome step, which shouldn't point at anything in particular. */
+  selector?: string;
   title: string;
   body: string;
 }
@@ -24,10 +26,14 @@ export function Tour({ steps, onFinish }: Props) {
   // a panel that isn't open, say — is skipped rather than left pointing at
   // nothing in the corner of the screen.
   useEffect(() => {
+    if (!step.selector) {
+      setRect(null);
+      return;
+    }
     let frame = 0;
     let attempts = 0;
     function update() {
-      const el = document.querySelector(step.selector);
+      const el = document.querySelector(step.selector!);
       if (el) {
         setRect(el.getBoundingClientRect());
       } else if (attempts++ < 30) {
@@ -60,9 +66,14 @@ export function Tour({ steps, onFinish }: Props) {
   }, [onFinish, steps.length]);
 
   const isLast = i === steps.length - 1;
+  const isWelcome = !step.selector;
   const pad = 8;
+  const width = isWelcome ? 380 : TOOLTIP_WIDTH;
 
-  let tooltipStyle: { top: number; left: number } = { top: 80, left: 80 };
+  let tooltipStyle: { top: number; left: number } = {
+    top: Math.max(24, window.innerHeight / 2 - 120),
+    left: Math.max(16, window.innerWidth / 2 - width / 2),
+  };
   let highlightStyle: { top: number; left: number; width: number; height: number } | null = null;
 
   if (rect) {
@@ -92,7 +103,8 @@ export function Tour({ steps, onFinish }: Props) {
   return createPortal(
     <div className="fixed inset-0 z-50">
       <div className="absolute inset-0" onClick={(e) => e.stopPropagation()} />
-      {highlightStyle && (
+      {isWelcome && <div className="absolute inset-0" style={{ background: "rgba(5, 8, 6, 0.78)" }} />}
+      {highlightStyle && !isWelcome && (
         <motion.div
           initial={false}
           animate={{ ...highlightStyle, opacity: 1 }}
@@ -107,16 +119,22 @@ export function Tour({ steps, onFinish }: Props) {
         animate={{ ...tooltipStyle, opacity: 1 }}
         transition={{ type: "tween", duration: 0.25, ease: "easeInOut" }}
         className="absolute rounded-xl border border-pd-green/40 p-4 shadow-2xl"
-        style={{ width: TOOLTIP_WIDTH, background: "var(--color-panel-2)" }}
+        style={{ width, background: "var(--color-panel-2)" }}
       >
-        <div className="mb-1 text-xs font-semibold tracking-widest text-pd-green uppercase">
-          {i + 1} / {steps.length}
-        </div>
-        <h4 className="mb-1.5 font-semibold text-slate-100">{step.title}</h4>
-        <p className="text-sm text-slate-400">{step.body}</p>
+        {!isWelcome && (
+          <div className="mb-1 text-xs font-semibold tracking-widest text-pd-green uppercase">
+            {i + 1} / {steps.length}
+          </div>
+        )}
+        <h4 className={isWelcome ? "mb-2 text-xl font-bold text-slate-50" : "mb-1.5 font-semibold text-slate-100"}>
+          {step.title}
+        </h4>
+        <p className={isWelcome ? "text-sm leading-relaxed text-slate-300" : "text-sm text-slate-400"}>
+          {step.body}
+        </p>
         <div className="mt-3 flex items-center justify-between">
           <button onClick={onFinish} className="text-xs text-slate-500 hover:text-slate-300">
-            Skip
+            {isWelcome ? "No thanks" : "Skip"}
           </button>
           <div className="flex gap-2">
             {i > 0 && (
@@ -131,7 +149,7 @@ export function Tour({ steps, onFinish }: Props) {
               onClick={() => (isLast ? onFinish() : setI((n) => n + 1))}
               className="rounded-md bg-pd-green px-2.5 py-1 text-xs font-medium text-white hover:opacity-90"
             >
-              {isLast ? "Done" : "Next"}
+              {isLast ? "Done" : isWelcome ? "Show me around →" : "Next"}
             </button>
           </div>
         </div>

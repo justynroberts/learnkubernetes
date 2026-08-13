@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# One-command setup + launch for PagerDuty Kubernetes Academy.
+# One-command setup + launch for PagerDuty Kubernetes Academy (101 - Basics).
 # Safe to re-run any time — skips steps that are already done.
 set -euo pipefail
 cd "$(dirname "${BASH_SOURCE[0]}")"
@@ -18,8 +18,8 @@ ok() {
   echo -e "${GREEN}✓ $1${RESET}"
 }
 
-echo "PagerDuty Kubernetes Academy — setup & launch"
-echo "=============================================="
+echo "PagerDuty Kubernetes Academy (101 - Basics) — setup & launch"
+echo "==========================================================="
 
 # --- Prerequisites -----------------------------------------------------
 

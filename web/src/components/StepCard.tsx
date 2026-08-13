@@ -17,7 +17,7 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
   const [showHint, setShowHint] = useState(false);
   const [validating, setValidating] = useState(false);
   const [result, setResult] = useState<CheckResult | null>(done ? { pass: true, message: "" } : null);
-  const [copied, setCopied] = useState(false);
+  const [copyState, setCopyState] = useState<"idle" | "copied" | "failed">("idle");
   // Steps with no command (e.g. the graduation recap) have nothing to "run"
   // first, so Validate is available immediately. Steps with a command stay
   // hidden until the learner has actually copied or run it — otherwise the
@@ -38,12 +38,40 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
     }
   }
 
-  function copy() {
+  /**
+   * `navigator.clipboard` is undefined outside a secure context — reaching the
+   * app on a LAN address rather than localhost, for instance — so fall back to
+   * a hidden textarea. Either way the step counts as attempted: gating Validate
+   * behind a clipboard API that quietly failed would strand the learner.
+   */
+  async function copy() {
     if (!step.command) return;
-    navigator.clipboard.writeText(step.command);
-    setCopied(true);
     setInteracted(true);
-    setTimeout(() => setCopied(false), 1500);
+    let ok = false;
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(step.command);
+        ok = true;
+      }
+    } catch {
+      ok = false;
+    }
+    if (!ok) {
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = step.command;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        ok = document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch {
+        ok = false;
+      }
+    }
+    setCopyState(ok ? "copied" : "failed");
+    setTimeout(() => setCopyState("idle"), 1800);
   }
 
   function run() {
@@ -78,10 +106,13 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
 
           {step.command && (
             <div className="group relative mt-3 overflow-hidden rounded-lg border border-slate-700/70 bg-[#0d1017]">
-              <code className="block overflow-x-auto px-3 py-2 pr-24 font-mono text-[13px] text-pd-green-light whitespace-pre">
+              <code
+                onCopy={() => setInteracted(true)}
+                className="block overflow-x-auto px-3 py-2 pr-24 font-mono text-[13px] text-pd-green-light whitespace-pre"
+              >
                 {step.command}
               </code>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-stretch opacity-0 transition-opacity duration-150 group-hover:pointer-events-auto group-hover:opacity-100">
+              <div className="absolute inset-y-0 right-0 flex items-stretch opacity-70 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100">
                 <div className="w-6 bg-gradient-to-r from-transparent to-[#0d1017]" />
                 <motion.button
                   whileHover={{ scale: 1.03 }}
@@ -90,7 +121,7 @@ export function StepCard({ lessonId, index, step, done, onDone, onRunInTerminal 
                   className="border-l border-slate-700/70 bg-pd-green/10 px-3 text-xs font-semibold text-pd-green-light hover:bg-pd-green/20"
                   title="Copy to clipboard"
                 >
-                  {copied ? "Copied ✓" : "Copy"}
+                  {copyState === "copied" ? "Copied ✓" : copyState === "failed" ? "Select & copy" : "Copy"}
                 </motion.button>
                 <motion.button
                   whileTap={{ scale: 0.94 }}

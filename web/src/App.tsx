@@ -11,13 +11,17 @@ import { ManifestEditorPanel, type LinkedStep } from "./components/ManifestEdito
 import { GlossaryPanel } from "./components/GlossaryPanel";
 import { Tour, type TourStep } from "./components/Tour";
 
-const TOUR_SEEN_KEY = "lk-tour-seen-v1";
+const TOUR_SEEN_KEY = "lk-tour-seen-v2";
 
 const TOUR_STEPS: TourStep[] = [
   {
+    title: "Welcome to Kubernetes 101",
+    body: "17 lessons that run against a real Kubernetes cluster on your own machine — nothing here is simulated. Let's spend thirty seconds on where everything is.",
+  },
+  {
     selector: '[data-tour="brand"]',
-    title: "A quick tour of the buttons",
-    body: "Thirty seconds, then you're on your own. 17 lessons, every check run against your real cluster.",
+    title: "Your cluster, at a glance",
+    body: "Up here you can always see whether your cluster is reachable, which one you're connected to, and how far through the course you are.",
   },
   {
     selector: '[data-tour="sidebar"]',

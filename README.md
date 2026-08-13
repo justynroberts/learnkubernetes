@@ -1,4 +1,4 @@
-# PagerDuty Kubernetes Basics
+# PagerDuty Kubernetes Academy (101 - Basics)
 
 Learn Kubernetes by actually using it. This is a 17-lesson course that runs in your
 browser and works against a real Kubernetes cluster on your own machine — when a

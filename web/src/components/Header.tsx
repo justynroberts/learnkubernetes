@@ -43,6 +43,9 @@ export function Header({
         <span className="font-semibold text-slate-100">
           PagerDuty <span className="font-normal text-slate-400">Kubernetes Academy</span>
         </span>
+        <span className="rounded-full border border-pd-green/40 bg-pd-green/10 px-2 py-0.5 text-[10px] font-semibold tracking-wide text-pd-green-light">
+          101 - Basics
+        </span>
       </div>
 
       <div className="flex items-center gap-5">
@@ -118,10 +121,10 @@ export function Header({
         <button
           data-tour="help"
           onClick={onOpenTour}
-          className="btn-pop flex h-6 w-6 items-center justify-center rounded-full border border-slate-700 text-xs text-slate-400 hover:border-pd-green/50 hover:text-pd-green-light"
+          className="btn-pop flex items-center gap-1.5 rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-400 hover:border-pd-green/50 hover:text-pd-green-light"
           title="Replay the guided tour"
         >
-          ?
+          <span aria-hidden>?</span> Tour
         </button>
 
         <button
