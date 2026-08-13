@@ -75,6 +75,7 @@ during this course is still healthy on your cluster.`,
       questions: [
         {
           id: "q-service",
+          lesson: 8,
           prompt:
             "Your Pods keep getting replaced and picking up new IPs. Which object gives whatever Pods currently exist one stable address to be reached on?",
           options: ["A Service", "A ConfigMap", "A Namespace", "A ReplicaSet"],
@@ -84,6 +85,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-replicaset",
+          lesson: 6,
           prompt: "You apply a Deployment. Which object directly creates and watches over its Pods?",
           options: [
             "The Deployment itself",
@@ -97,6 +99,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-readiness",
+          lesson: 11,
           prompt: "A container's readiness probe starts failing. What does Kubernetes do?",
           options: [
             "Restarts the container immediately",
@@ -110,6 +113,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-namespace",
+          lesson: 3,
           prompt: "What does putting two Pods in the same Namespace guarantee about them?",
           options: [
             "They run on the same node",
@@ -123,6 +127,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-emptydir",
+          lesson: 13,
           prompt: "A Pod has an `emptyDir` volume with data in it. You delete the Pod. What happens to the data?",
           options: [
             "It survives — that's the point of a volume",
@@ -136,6 +141,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-secret",
+          lesson: 10,
           prompt: "How are Secret values stored by default?",
           options: [
             "Encrypted with a key only the API server holds",
@@ -149,6 +155,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-rollback",
+          lesson: 12,
           prompt: "What makes `kubectl rollout undo` possible after a bad Deployment update?",
           options: [
             "Kubernetes snapshots the container filesystem before updating",
@@ -162,6 +169,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-scheduler",
+          lesson: 2,
           prompt:
             "You scale a Deployment from 2 replicas to 4. Which component decides which node the two new Pods run on?",
           options: ["kubectl", "The scheduler", "The kubelet on each node", "etcd"],
@@ -171,6 +179,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-troubleshoot",
+          lesson: 15,
           prompt: "A Pod is stuck in `ImagePullBackOff`. Which command tells you why first?",
           options: [
             "kubectl logs <pod> — read what the container printed",
@@ -184,6 +193,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-job",
+          lesson: 14,
           prompt: "Which workload would you use for a one-off database migration?",
           options: [
             "A Deployment, scaled to 1",

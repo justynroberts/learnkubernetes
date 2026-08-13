@@ -55,6 +55,8 @@ export interface ExamQuestion {
   options: string[];
   correctIndex: number;
   explanation: string;
+  /** Lesson number where this is taught, so a wrong answer can point somewhere. */
+  lesson: number;
 }
 
 /**
@@ -108,7 +110,7 @@ export interface LessonSummary {
 export type TaskStepDetail = Omit<TaskStep, "check">;
 export type QuizStepDetail = Omit<QuizStep, "correctIndex" | "explanation">;
 export type ManifestStepDetail = Omit<ManifestStep, "check">;
-export type ExamQuestionDetail = Omit<ExamQuestion, "correctIndex" | "explanation">;
+export type ExamQuestionDetail = Omit<ExamQuestion, "correctIndex" | "explanation" | "lesson">;
 export type ExamStepDetail = Omit<ExamStep, "questions"> & { questions: ExamQuestionDetail[] };
 export type StepDetail = TaskStepDetail | QuizStepDetail | ManifestStepDetail | ExamStepDetail;
 
@@ -142,7 +144,7 @@ export function toDetail(l: Lesson): LessonDetail {
       if (step.kind === "exam") {
         return {
           ...step,
-          questions: step.questions.map(({ correctIndex, explanation, ...q }) => q),
+          questions: step.questions.map(({ correctIndex, explanation, lesson, ...q }) => q),
         };
       }
       const { check, ...rest } = step;

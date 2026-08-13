@@ -11,6 +11,11 @@ export const scaling: Lesson = {
 Need to handle more traffic? Change one number. The Deployment's controller adds or
 removes Pods until the running count matches the desired count — no manual
 scheduling required.
+
+Scaling up doesn't disturb what's already running: the Pods you have keep serving
+traffic untouched, and the controller simply creates however many extra are needed,
+each one scheduled onto a node like any other Pod. Scaling down is the reverse — it
+picks Pods to remove and leaves the rest alone.
 `,
   steps: [
     {

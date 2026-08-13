@@ -77,6 +77,7 @@ export interface ExamResult {
     correctIndex: number;
     correct: boolean;
     explanation: string;
+    lesson: number;
   }[];
 }
 

@@ -16,38 +16,43 @@ const TOUR_SEEN_KEY = "lk-tour-seen-v1";
 const TOUR_STEPS: TourStep[] = [
   {
     selector: '[data-tour="brand"]',
-    title: "Welcome to PagerDuty Kubernetes Academy",
-    body: "17 hands-on lessons, from cluster basics to deploying a real Runbook Automation runner. Every check runs against your actual cluster.",
+    title: "A quick tour of the buttons",
+    body: "Thirty seconds, then you're on your own. 17 lessons, every check run against your real cluster.",
   },
   {
     selector: '[data-tour="sidebar"]',
     title: "Your lessons",
-    body: "Work through these in order, or jump around. Progress is saved automatically in your browser.",
+    body: "Work down the list. Your progress is saved automatically, and a tick means the check passed on your cluster.",
   },
   {
     selector: '[data-tour="cluster-map"]',
     title: "Where things live",
-    body: "The same cluster map appears on every lesson, with the part you're about to work on lit up. Lesson 2 walks through the whole thing.",
+    body: "Every lesson opens with this map, lit up on the part you're about to work on.",
   },
   {
     selector: '[data-tour="terminal-toggle"]',
-    title: "Your real terminal",
-    body: "This opens a real terminal wired to your local shell and cluster. Click \"Run\" on any command in a lesson to send it straight here.",
+    title: "Terminal",
+    body: "Opens a real terminal on your machine. Click \"Run\" on any lesson command to send it straight here — or type your own.",
   },
   {
     selector: '[data-tour="manifest-editor-toggle"]',
-    title: "Free-form YAML editing",
-    body: "Need to write or tweak a Deployment, Service, or other manifest outside a lesson? Open this any time — it applies straight to your k8s-academy namespace.",
+    title: "YAML Editor",
+    body: "Write or tweak any manifest and apply it to your k8s-academy namespace. Lessons that need YAML open this for you.",
   },
   {
     selector: '[data-tour="glossary-toggle"]',
-    title: "Forgotten a term?",
-    body: "Every component in the course is defined here in plain words, with the lesson that covers it. Open it any time, mid-exercise.",
+    title: "Glossary",
+    body: "Every term in the course, defined in plain words, with a link to the lesson that covers it. Open it mid-exercise.",
+  },
+  {
+    selector: '[data-tour="reset"]',
+    title: "Reset course",
+    body: "Wipes everything you've built and starts you over. Nothing outside the k8s-academy namespace is touched.",
   },
   {
     selector: '[data-tour="help"]',
-    title: "Need this again?",
-    body: "Click here any time to replay this tour.",
+    title: "That's it",
+    body: "Click here any time to replay this tour. Press Esc to close it.",
   },
 ];
 
@@ -65,6 +70,7 @@ export default function App() {
   const { isStepDone, markStep, lessonProgress, reset } = useProgress();
   const termRef = useRef<TerminalHandle>(null);
   const autoOfferedLessons = useRef(new Set<string>());
+  const tourOffered = useRef(false);
 
   useEffect(() => {
     api.lessons().then((ls) => {
@@ -74,12 +80,6 @@ export default function App() {
     api.status().then(setStatus);
     const poll = setInterval(() => api.status().then(setStatus), 15000);
     return () => clearInterval(poll);
-  }, []);
-
-  useEffect(() => {
-    if (localStorage.getItem(TOUR_SEEN_KEY)) return;
-    const t = setTimeout(() => setTourActive(true), 600);
-    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -106,6 +106,18 @@ export default function App() {
   const activeLessonProgress = activeLesson
     ? lessonProgress(activeLesson.id, activeLesson.steps.length)
     : { done: 0, total: 0, complete: false };
+
+  // Wait for the first lesson to actually render before starting the tour —
+  // on a slow first load its steps would otherwise point at elements that
+  // don't exist yet.
+  useEffect(() => {
+    if (tourOffered.current) return;
+    if (localStorage.getItem(TOUR_SEEN_KEY)) return;
+    if (!activeLesson) return;
+    tourOffered.current = true;
+    const t = setTimeout(() => setTourActive(true), 400);
+    return () => clearTimeout(t);
+  }, [activeLesson]);
 
   function openManifestEditorForStep(stepId: string) {
     if (!activeLesson) return;
@@ -138,6 +150,11 @@ export default function App() {
     openManifestEditorForStep(nextStep.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLesson?.id]);
+
+  function goToLessonByOrder(order: number) {
+    const target = lessons.find((l) => l.order === order);
+    if (target) setActiveId(target.id);
+  }
 
   function toggleManifestEditor() {
     if (manifestEditorOpen) {
@@ -201,6 +218,7 @@ export default function App() {
                   termRef.current?.runCommand(cmd);
                 }}
                 onOpenManifestEditor={openManifestEditorForStep}
+                onGoToLesson={goToLessonByOrder}
                 onNextLesson={() => nextLesson && setActiveId(nextLesson.id)}
                 hasNext={!!nextLesson}
                 allDone={activeLessonProgress.complete}
@@ -229,10 +247,7 @@ export default function App() {
       <GlossaryPanel
         open={glossaryOpen}
         onClose={() => setGlossaryOpen(false)}
-        onGoToLesson={(order) => {
-          const target = lessons.find((l) => l.order === order);
-          if (target) setActiveId(target.id);
-        }}
+        onGoToLesson={goToLessonByOrder}
       />
 
       {tourActive && <Tour steps={TOUR_STEPS} onFinish={finishTour} />}

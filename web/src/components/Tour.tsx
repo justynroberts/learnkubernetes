@@ -20,19 +20,44 @@ export function Tour({ steps, onFinish }: Props) {
   const [rect, setRect] = useState<DOMRect | null>(null);
   const step = steps[i];
 
+  // Track the target as it settles. A step whose element isn't on the page —
+  // a panel that isn't open, say — is skipped rather than left pointing at
+  // nothing in the corner of the screen.
   useEffect(() => {
+    let frame = 0;
+    let attempts = 0;
     function update() {
       const el = document.querySelector(step.selector);
-      setRect(el ? el.getBoundingClientRect() : null);
+      if (el) {
+        setRect(el.getBoundingClientRect());
+      } else if (attempts++ < 30) {
+        frame = requestAnimationFrame(update);
+        return;
+      } else {
+        setRect(null);
+        setI((n) => (n < steps.length - 1 ? n + 1 : n));
+        return;
+      }
+      frame = requestAnimationFrame(update);
     }
     update();
     window.addEventListener("resize", update);
-    const raf = requestAnimationFrame(update);
     return () => {
       window.removeEventListener("resize", update);
-      cancelAnimationFrame(raf);
+      cancelAnimationFrame(frame);
     };
-  }, [step.selector]);
+  }, [step.selector, steps.length]);
+
+  // Esc leaves, arrows move — a tour you can't get out of is a modal trap.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onFinish();
+      if (e.key === "ArrowRight") setI((n) => Math.min(n + 1, steps.length - 1));
+      if (e.key === "ArrowLeft") setI((n) => Math.max(n - 1, 0));
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onFinish, steps.length]);
 
   const isLast = i === steps.length - 1;
   const pad = 8;

@@ -81,6 +81,7 @@ app.post("/api/lessons/:id/steps/:stepId/exam", (req, res) => {
       correctIndex: q.correctIndex,
       correct: given === q.correctIndex,
       explanation: q.explanation,
+      lesson: q.lesson,
     };
   });
 

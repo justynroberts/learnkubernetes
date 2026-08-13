@@ -125,6 +125,7 @@ export function Header({
         </button>
 
         <button
+          data-tour="reset"
           onClick={onReset}
           className="btn-pop rounded-md border border-slate-700 px-2.5 py-1 text-xs text-slate-400 hover:border-rose-500/50 hover:text-rose-300"
           title="Delete and recreate the k8s-academy namespace, and clear local progress"

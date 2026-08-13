@@ -20,6 +20,7 @@ interface Props {
   markStep: (lessonId: string, stepId: string, done: boolean) => void;
   onRunInTerminal: (command: string) => void;
   onOpenManifestEditor: (stepId: string) => void;
+  onGoToLesson: (order: number) => void;
   onNextLesson?: () => void;
   hasNext: boolean;
   allDone: boolean;
@@ -45,6 +46,7 @@ export function LessonView({
   markStep,
   onRunInTerminal,
   onOpenManifestEditor,
+  onGoToLesson,
   onNextLesson,
   hasNext,
   allDone,
@@ -145,6 +147,7 @@ export function LessonView({
             step={step}
             done={done}
             onDone={(pass) => handleMark(step.id, pass)}
+            onGoToLesson={onGoToLesson}
           />
         );
       case "manifest":

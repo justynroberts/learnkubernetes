@@ -9,9 +9,14 @@ export const rollouts: Lesson = {
   focus: "rollout",
   intro: `
 Deployments update Pods gradually — a **rolling update** replaces old Pods with new
-ones a few at a time, so your app stays available throughout. Every revision is
-recorded, so if the new version turns out to be broken you can **roll back** to the
-previous one just as easily.
+ones a few at a time, so your app stays available throughout.
+
+The mechanism is worth knowing, because it's what makes undoing a bad deploy so
+cheap. A Deployment doesn't edit Pods in place: it creates a **new ReplicaSet** for
+the new spec and scales it up while scaling the old one down. The old ReplicaSet
+isn't deleted — it stays, scaled to zero, as a recorded **revision**. So a
+**rollback** is simply scaling the previous ReplicaSet back up and the current one
+down, which is why it takes seconds rather than a redeploy.
 `,
   steps: [
     {

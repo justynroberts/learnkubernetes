@@ -15,9 +15,11 @@ interface Props {
   step: ExamStepDetail;
   done: boolean;
   onDone: (pass: boolean) => void;
+  /** Every question names the lesson that teaches it, so a miss is researchable. */
+  onGoToLesson: (order: number) => void;
 }
 
-export function ExamCard({ lessonId, step, done, onDone }: Props) {
+export function ExamCard({ lessonId, step, done, onDone, onGoToLesson }: Props) {
   const [started, setStarted] = useState(false);
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, number>>({});
@@ -142,6 +144,12 @@ export function ExamCard({ lessonId, step, done, onDone }: Props) {
                         </div>
                       )}
                       <div className="mt-1 text-[13px] leading-snug text-slate-500">{r.explanation}</div>
+                      <button
+                        onClick={() => onGoToLesson(r.lesson)}
+                        className="mt-1.5 text-[11px] text-slate-600 underline decoration-dotted underline-offset-2 hover:text-pd-green-light"
+                      >
+                        Covered in lesson {r.lesson} →
+                      </button>
                     </div>
                   </div>
                 </div>

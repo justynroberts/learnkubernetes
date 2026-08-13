@@ -117,9 +117,14 @@ To skip the preflight checks: `npm install --prefix server && npm install --pref
 
 **Lessons** are TypeScript modules in `server/src/lessons/*.ts`, one per lesson,
 registered in `index.ts`. Each has an `intro`, a `focus` naming the region of the
-cluster diagram to highlight, and a list of steps — `task` (run a command), `quiz`, or
-`manifest` (edit YAML in the drawer and apply it). Quiz answers and validator
-functions are stripped server-side before a lesson is sent to the browser.
+cluster diagram to highlight, and a list of steps — `task` (run a command), `quiz`,
+`manifest` (edit YAML in the drawer and apply it), or `exam` (a set of questions
+graded together, used for the final). Quiz and exam answers, explanations and
+validator functions are all stripped server-side before a lesson reaches the browser.
+
+Every exam question names the lesson that teaches it, and the results link there, so
+a wrong answer always has somewhere to go and read. Nothing is asked that the course
+doesn't state.
 
 **Validation** is a small `check()` per step that runs real `kubectl get`-style
 queries against the `k8s-academy` namespace and inspects the JSON — e.g. "does the

@@ -10,8 +10,15 @@ export const pods: Lesson = {
   intro: `
 A **Pod** is the smallest deployable unit in Kubernetes — one or more containers that
 share a network address and storage, always scheduled together on the same node.
-You almost never manage a lone Pod directly in production (that's what Deployments
-are for, coming up next), but understanding Pods is the foundation for everything else.
+
+You almost never manage a lone Pod directly in production, and the reason is worth
+knowing: **a bare Pod has no self-healing.** Create one by hand and nothing is
+watching it. If it crashes badly enough, or its node goes away, it simply stops
+existing and nothing brings it back. What you normally do is ask a **controller** —
+a Deployment, coming up shortly — for Pods, and let it recreate them as needed.
+
+Understanding Pods is still the foundation for everything else, so we'll make one by
+hand first.
 `,
   steps: [
     {

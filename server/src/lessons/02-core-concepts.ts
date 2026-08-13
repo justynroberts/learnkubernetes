@@ -20,18 +20,45 @@ Before creating anything, it's worth having a picture in your head of *where*
 things live. Use the map above — every lesson from here on highlights the part of
 it you're working in.
 
-A **cluster** is the whole box. It has two halves:
+A **cluster** is the whole box, and it has two halves: a **control plane** that makes
+the decisions, and **nodes** that actually run your containers.
 
-- The **control plane** is the brain. The **API server** is its front door — every
-  \`kubectl\` command is just an HTTPS call to it. The **scheduler** decides which
-  node each new Pod lands on, **controllers** continuously compare desired state to
-  actual state and fix the difference, and **etcd** is the database where all of
-  that desired state is written down.
-- **Nodes** are the machines that actually run your containers. On each one, a
-  **kubelet** takes its assigned Pods from the API server and tells the container
-  runtime to start them.
+### The control plane
 
-Inside that, the objects you'll spend your time on:
+Four components, each with exactly one job:
+
+- **API server** — the front door. Every request into Kubernetes arrives here, and
+  every \`kubectl\` command you type is just an HTTPS call to it. It checks the
+  request is valid and writes it down. Nothing in the cluster talks to anything else
+  directly; it all goes through the API server.
+- **Scheduler** — the placement engine. A newly created Pod doesn't have a node yet.
+  The scheduler looks at what the Pod needs (CPU, memory, any placement rules) and
+  what each node has free, picks one, and records that choice. It only *decides* —
+  it doesn't start anything itself. With one node there's only ever one candidate,
+  but the step still happens.
+- **Controllers** — the repair loops. Each watches one kind of object, compares what
+  you asked for against what exists, and acts to close the gap. A Deployment
+  controller that finds 3 Pods when you asked for 4 creates the fourth. This loop is
+  the central idea of Kubernetes: you describe the end state, not the steps.
+- **etcd** — the memory. The database holding every object in the cluster, and the
+  source of truth for what is supposed to be running.
+
+### The nodes
+
+- **kubelet** — the agent running on every node. It asks the API server which Pods
+  have been assigned to its node, tells the container runtime to start them, watches
+  them, and reports back. It's also what runs your health probes.
+- **Container runtime** — containerd, on your cluster. The kubelet doesn't run
+  containers itself; it delegates to a runtime.
+
+So creating anything follows the same path every single time:
+
+> **kubectl → API server → etcd → a controller creates the Pod → the scheduler
+> assigns it a node → that node's kubelet starts the container.**
+
+That chain explains most of what you'll see for the rest of the course.
+
+### The objects you'll work with
 
 - A **Pod** is the smallest unit you can run — one or more containers sharing a
   network address, always on a single node.
