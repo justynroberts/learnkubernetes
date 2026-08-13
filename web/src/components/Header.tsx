@@ -8,6 +8,8 @@ interface Props {
   onToggleTerminal: () => void;
   manifestEditorOpen: boolean;
   onToggleManifestEditor: () => void;
+  glossaryOpen: boolean;
+  onToggleGlossary: () => void;
   onOpenTour: () => void;
   onReset: () => void;
 }
@@ -19,6 +21,8 @@ export function Header({
   onToggleTerminal,
   manifestEditorOpen,
   onToggleManifestEditor,
+  glossaryOpen,
+  onToggleGlossary,
   onOpenTour,
   onReset,
 }: Props) {
@@ -95,6 +99,20 @@ export function Header({
           title="Open the YAML editor to create or edit any manifest"
         >
           <span aria-hidden>{"{ }"}</span> YAML Editor
+        </button>
+
+        <button
+          data-tour="glossary-toggle"
+          onClick={onToggleGlossary}
+          className={clsx(
+            "btn-pop flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors",
+            !glossaryOpen
+              ? "border-slate-700 text-slate-400 hover:border-pd-green/50 hover:text-pd-green-light"
+              : "border-pd-green/50 bg-pd-green/10 text-pd-green-light",
+          )}
+          title="Look up any Kubernetes term used in the course"
+        >
+          <span aria-hidden>📖</span> Glossary
         </button>
 
         <button

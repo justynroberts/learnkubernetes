@@ -1,4 +1,4 @@
-import type { CheckResult, ClusterStatus, LessonDetail, LessonSummary } from "../types";
+import type { CheckResult, ClusterStatus, ExamResult, LessonDetail, LessonSummary } from "../types";
 
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) throw new Error(`Request failed: ${res.status}`);
@@ -19,6 +19,12 @@ export const api = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ selectedIndex }),
     }).then((r) => json<CheckResult>(r)),
+  exam: (lessonId: string, stepId: string, answers: Record<string, number>) =>
+    fetch(`/api/lessons/${lessonId}/steps/${stepId}/exam`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ answers }),
+    }).then((r) => json<ExamResult>(r)),
   apply: (lessonId: string, stepId: string, yaml: string) =>
     fetch(`/api/lessons/${lessonId}/steps/${stepId}/apply`, {
       method: "POST",

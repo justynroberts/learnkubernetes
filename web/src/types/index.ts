@@ -50,7 +50,37 @@ export interface ManifestStepDetail {
   hint?: string;
 }
 
-export type StepDetail = TaskStepDetail | QuizStepDetail | ManifestStepDetail;
+export interface ExamQuestionDetail {
+  id: string;
+  prompt: string;
+  options: string[];
+}
+
+export interface ExamStepDetail {
+  kind: "exam";
+  id: string;
+  title: string;
+  instructions: string;
+  passMark: number;
+  questions: ExamQuestionDetail[];
+}
+
+export interface ExamResult {
+  pass: boolean;
+  correct: number;
+  total: number;
+  needed: number;
+  results: {
+    id: string;
+    prompt: string;
+    selectedIndex: number | null;
+    correctIndex: number;
+    correct: boolean;
+    explanation: string;
+  }[];
+}
+
+export type StepDetail = TaskStepDetail | QuizStepDetail | ManifestStepDetail | ExamStepDetail;
 
 export interface LessonDetail {
   id: string;

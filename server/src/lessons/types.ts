@@ -49,6 +49,29 @@ export interface QuizStep {
   explanation: string;
 }
 
+export interface ExamQuestion {
+  id: string;
+  prompt: string;
+  options: string[];
+  correctIndex: number;
+  explanation: string;
+}
+
+/**
+ * A set of questions answered together and graded in one go, rather than the
+ * one-question-at-a-time QuizStep. Used for the final exam, where the point is
+ * a score across the whole course rather than instant feedback per question.
+ */
+export interface ExamStep {
+  kind: "exam";
+  id: string;
+  title: string;
+  instructions: string;
+  /** Fraction of questions that must be right to pass, 0–1. */
+  passMark: number;
+  questions: ExamQuestion[];
+}
+
 export interface ManifestStep {
   kind: "manifest";
   id: string;
@@ -60,7 +83,7 @@ export interface ManifestStep {
   check: () => Promise<CheckResult>;
 }
 
-export type Step = TaskStep | QuizStep | ManifestStep;
+export type Step = TaskStep | QuizStep | ManifestStep | ExamStep;
 
 export interface Lesson {
   id: string;
@@ -85,7 +108,9 @@ export interface LessonSummary {
 export type TaskStepDetail = Omit<TaskStep, "check">;
 export type QuizStepDetail = Omit<QuizStep, "correctIndex" | "explanation">;
 export type ManifestStepDetail = Omit<ManifestStep, "check">;
-export type StepDetail = TaskStepDetail | QuizStepDetail | ManifestStepDetail;
+export type ExamQuestionDetail = Omit<ExamQuestion, "correctIndex" | "explanation">;
+export type ExamStepDetail = Omit<ExamStep, "questions"> & { questions: ExamQuestionDetail[] };
+export type StepDetail = TaskStepDetail | QuizStepDetail | ManifestStepDetail | ExamStepDetail;
 
 export interface LessonDetail {
   id: string;
@@ -113,6 +138,12 @@ export function toDetail(l: Lesson): LessonDetail {
       if (step.kind === "quiz") {
         const { correctIndex, explanation, ...rest } = step;
         return rest;
+      }
+      if (step.kind === "exam") {
+        return {
+          ...step,
+          questions: step.questions.map(({ correctIndex, explanation, ...q }) => q),
+        };
       }
       const { check, ...rest } = step;
       return rest;

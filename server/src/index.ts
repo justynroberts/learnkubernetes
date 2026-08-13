@@ -59,6 +59,37 @@ app.post("/api/lessons/:id/steps/:stepId/answer", (req, res) => {
   res.json({ pass, message: step.explanation });
 });
 
+/**
+ * Grades a whole exam in one request. Correct answers and explanations only
+ * ever leave the server here, in response to a submission — the lesson payload
+ * itself has them stripped out.
+ */
+app.post("/api/lessons/:id/steps/:stepId/exam", (req, res) => {
+  const { lesson, step } = findStep(req.params.id, req.params.stepId);
+  if (!lesson || !step) return res.status(404).json({ error: "step not found" });
+  if (step.kind !== "exam") return res.status(400).json({ error: "not an exam step" });
+
+  const answers = req.body?.answers;
+  if (!answers || typeof answers !== "object") return res.status(400).json({ error: "answers required" });
+
+  const results = step.questions.map((q) => {
+    const given = answers[q.id];
+    return {
+      id: q.id,
+      prompt: q.prompt,
+      selectedIndex: typeof given === "number" ? given : null,
+      correctIndex: q.correctIndex,
+      correct: given === q.correctIndex,
+      explanation: q.explanation,
+    };
+  });
+
+  const correct = results.filter((r) => r.correct).length;
+  const total = results.length;
+  const needed = Math.ceil(total * step.passMark);
+  res.json({ pass: correct >= needed, correct, total, needed, results });
+});
+
 app.post("/api/lessons/:id/steps/:stepId/apply", async (req, res) => {
   const { lesson, step } = findStep(req.params.id, req.params.stepId);
   if (!lesson || !step) return res.status(404).json({ error: "step not found" });

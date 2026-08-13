@@ -74,6 +74,14 @@ drawn from your own cluster — your real node name, and faded extra nodes to sh
 a production cluster looks like compared to the single-node one on your laptop. Lesson
 2 walks through the whole diagram.
 
+Exercises appear one at a time — the next one unlocks when you finish the one before
+it, so a lesson is never a wall of text. The course ends with a ten-question final
+exam; get eight right to graduate, and retake it as often as you like.
+
+Forgotten what something means? The **Glossary** button at the top defines every
+component used in the course in plain words, and links to the lesson that covers it.
+You can open it in the middle of an exercise.
+
 There's also a built-in terminal, which you open with the **Terminal** button at the
 top. It's a real terminal on your machine, so you can either click **Run** on a
 lesson's command to send it there, or type commands yourself. Working in your own separate terminal instead works too —

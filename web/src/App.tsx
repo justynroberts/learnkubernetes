@@ -8,6 +8,7 @@ import { LessonView } from "./components/LessonView";
 import type { TerminalHandle } from "./components/Terminal";
 import { TerminalPanel } from "./components/TerminalPanel";
 import { ManifestEditorPanel, type LinkedStep } from "./components/ManifestEditorPanel";
+import { GlossaryPanel } from "./components/GlossaryPanel";
 import { Tour, type TourStep } from "./components/Tour";
 
 const TOUR_SEEN_KEY = "lk-tour-seen-v1";
@@ -39,6 +40,11 @@ const TOUR_STEPS: TourStep[] = [
     body: "Need to write or tweak a Deployment, Service, or other manifest outside a lesson? Open this any time — it applies straight to your k8s-academy namespace.",
   },
   {
+    selector: '[data-tour="glossary-toggle"]',
+    title: "Forgotten a term?",
+    body: "Every component in the course is defined here in plain words, with the lesson that covers it. Open it any time, mid-exercise.",
+  },
+  {
     selector: '[data-tour="help"]',
     title: "Need this again?",
     body: "Click here any time to replay this tour.",
@@ -53,6 +59,7 @@ export default function App() {
   const [terminalCollapsed, setTerminalCollapsed] = useState(true);
   const [manifestEditorOpen, setManifestEditorOpen] = useState(false);
   const [manifestEditorLink, setManifestEditorLink] = useState<LinkedStep | null>(null);
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
   const [tourActive, setTourActive] = useState(false);
 
   const { isStepDone, markStep, lessonProgress, reset } = useProgress();
@@ -119,14 +126,16 @@ export default function App() {
   // the editor automatically instead of leaving it as a small inline box —
   // long manifests need real editing room. Only offers once per lesson per
   // session, and never yanks the panel away if it's already open for
-  // something else.
+  // something else. Steps are revealed one at a time, so this only fires when
+  // the YAML step is the one actually unlocked — otherwise it would hand over
+  // a task the learner isn't meant to see yet.
   useEffect(() => {
     if (!activeLesson) return;
     if (autoOfferedLessons.current.has(activeLesson.id)) return;
-    const target = activeLesson.steps.find((s) => s.kind === "manifest" && !isStepDone(activeLesson.id, s.id));
+    const nextStep = activeLesson.steps.find((s) => !isStepDone(activeLesson.id, s.id));
     autoOfferedLessons.current.add(activeLesson.id);
-    if (!target || manifestEditorOpen) return;
-    openManifestEditorForStep(target.id);
+    if (!nextStep || nextStep.kind !== "manifest" || manifestEditorOpen) return;
+    openManifestEditorForStep(nextStep.id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLesson?.id]);
 
@@ -163,6 +172,8 @@ export default function App() {
         onToggleTerminal={() => setTerminalCollapsed((c) => !c)}
         manifestEditorOpen={manifestEditorOpen}
         onToggleManifestEditor={toggleManifestEditor}
+        glossaryOpen={glossaryOpen}
+        onToggleGlossary={() => setGlossaryOpen((v) => !v)}
         onOpenTour={() => setTourActive(true)}
         onReset={handleReset}
       />
@@ -213,6 +224,15 @@ export default function App() {
         linkedStep={manifestEditorLink}
         onGoFreeform={() => setManifestEditorLink(null)}
         onStepResult={(lessonId, stepId, pass) => markStep(lessonId, stepId, pass)}
+      />
+
+      <GlossaryPanel
+        open={glossaryOpen}
+        onClose={() => setGlossaryOpen(false)}
+        onGoToLesson={(order) => {
+          const target = lessons.find((l) => l.order === order);
+          if (target) setActiveId(target.id);
+        }}
       />
 
       {tourActive && <Tour steps={TOUR_STEPS} onFinish={finishTour} />}
