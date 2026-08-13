@@ -219,11 +219,11 @@ export const GLOSSARY: GlossaryGroup[] = [
         lesson: 8,
       },
       {
-        term: "Endpoints",
+        term: "EndpointSlice",
         what: "The actual list of Pod IPs currently behind a Service.",
         detail:
-          "The best way to check whether a Service is doing anything. An empty endpoints list almost always means the Service's selector doesn't match your Pods' labels — a typo, usually.",
-        command: "kubectl get endpoints web-svc",
+          "The best way to check whether a Service is doing anything. An empty list almost always means the Service's selector doesn't match your Pods' labels — a typo, usually. This replaces the older Endpoints object, which still works but is deprecated from Kubernetes 1.33 onward; plenty of guides and blog posts still use it, so expect to see `kubectl get endpoints` in the wild.",
+        command: "kubectl get endpointslices -l kubernetes.io/service-name=web-svc",
         lesson: 8,
       },
       {

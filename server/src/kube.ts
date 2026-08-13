@@ -58,6 +58,21 @@ export async function listResourcesJson<T = any>(
   }
 }
 
+/** As `listResourcesJson`, but narrowed by a label selector (`-l`). */
+export async function listResourcesBySelector<T = any>(
+  kind: string,
+  selector: string,
+  namespace: string = NAMESPACE,
+): Promise<T[]> {
+  const { stdout, code } = await kubectl(["get", kind, "-n", namespace, "-l", selector, "-o", "json"]);
+  if (code !== 0) return [];
+  try {
+    return (JSON.parse(stdout).items ?? []) as T[];
+  } catch {
+    return [];
+  }
+}
+
 /** Runs `kubectl get <kind> -A -o json` (cluster-wide) and returns the `.items` array, or []. */
 export async function listAllNamespacesJson<T = any>(kind: string): Promise<T[]> {
   const { stdout, code } = await kubectl(["get", kind, "-A", "-o", "json"]);

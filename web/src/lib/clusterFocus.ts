@@ -141,7 +141,7 @@ export const REGION_TERMS: Record<Region, string[]> = {
   config: ["ConfigMap"],
   secret: ["Secret"],
   volume: ["Volume", "emptyDir"],
-  service: ["Service", "Endpoints"],
+  service: ["Service", "EndpointSlice"],
   ingress: ["Ingress", "Service"],
   probes: ["Liveness probe", "Readiness probe"],
   job: ["Job", "CronJob"],

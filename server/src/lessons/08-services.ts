@@ -1,5 +1,5 @@
 import type { Lesson } from "./types.js";
-import { NAMESPACE, getResourceJson } from "../kube.js";
+import { NAMESPACE, getResourceJson, listResourcesBySelector } from "../kube.js";
 
 export const services: Lesson = {
   id: "services",
@@ -50,17 +50,34 @@ spec:
     {
       kind: "task",
       id: "resolve-service",
-      title: "Confirm it has endpoints",
-      instructions: `A Service is only useful if it actually has Pods behind it. List its endpoints to
-confirm real Pod IPs are backing it.`,
-      command: `kubectl get endpoints web-svc -n ${NAMESPACE}`,
+      title: "Confirm it found your Pods",
+      instructions: `A Service is only useful if it actually has Pods behind it. Kubernetes keeps that
+list in an **EndpointSlice** — one per Service, holding the IPs of every Pod
+currently matching its selector. An empty one nearly always means the selector
+doesn't match your Pods' labels.`,
+      command: `kubectl get endpointslices -n ${NAMESPACE} -l kubernetes.io/service-name=web-svc`,
+      hint: "Older guides use `kubectl get endpoints`, which still works but is deprecated from Kubernetes 1.33 onward — EndpointSlice is the replacement.",
       check: async () => {
-        const ep = await getResourceJson<any>("endpoints", "web-svc");
-        const addrCount = (ep?.subsets ?? []).reduce((n: number, s: any) => n + (s.addresses?.length ?? 0), 0);
+        const slices = await listResourcesBySelector<any>(
+          "endpointslices",
+          "kubernetes.io/service-name=web-svc",
+        );
+        const addrCount = slices.reduce(
+          (n: number, slice: any) =>
+            n +
+            (slice.endpoints ?? []).filter((e: any) => e.conditions?.ready !== false).reduce(
+              (m: number, e: any) => m + (e.addresses?.length ?? 0),
+              0,
+            ),
+          0,
+        );
         if (addrCount === 0) {
-          return { pass: false, message: `Service "web-svc" has no endpoints yet — its Pods may still be starting.` };
+          return {
+            pass: false,
+            message: `Service "web-svc" has no Pod addresses behind it yet — its Pods may still be starting, or its selector may not match their labels.`,
+          };
         }
-        return { pass: true, message: `web-svc has ${addrCount} Pod endpoint(s) behind it.` };
+        return { pass: true, message: `web-svc has ${addrCount} Pod address(es) behind it.` };
       },
     },
     {
