@@ -12,6 +12,10 @@ Pods are ephemeral — they get replaced and get new IPs constantly. A **Service
 gives a stable virtual IP and DNS name that load-balances traffic across whichever
 Pods currently match its selector. It's the glue between "a changing set of Pods"
 and "something else that needs to reliably reach them".
+
+One catch, which the next lesson fixes: the default Service type, **ClusterIP**, is
+only reachable from *inside* the cluster. It's how one component talks to another,
+not how your users reach your app from a browser.
 `,
   steps: [
     {

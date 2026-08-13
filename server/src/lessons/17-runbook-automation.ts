@@ -17,7 +17,7 @@ async function findRunnerPod() {
 
 export const runbookAutomation: Lesson = {
   id: "runbook-automation",
-  order: 16,
+  order: 17,
   title: "Deploy a Runbook Automation Runner",
   concept: "A real production workload",
   focus: "external",

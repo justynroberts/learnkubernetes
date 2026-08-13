@@ -19,7 +19,7 @@ const PATCH = JSON.stringify({
 
 export const probes: Lesson = {
   id: "probes",
-  order: 11,
+  order: 12,
   title: "Health Probes",
   concept: "Liveness & readiness probes",
   focus: "probes",

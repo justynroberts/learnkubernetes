@@ -129,6 +129,13 @@ export const GLOSSARY: GlossaryGroup[] = [
         lesson: 4,
       },
       {
+        term: "nginx",
+        what: "The web server this course runs as its example application.",
+        detail:
+          "Pronounced \"engine-x\", it's a widely used open-source web server: start it, point traffic at it, and it serves web pages. It's used throughout these lessons because it starts in about a second and shows an obvious \"Welcome to nginx!\" page when you reach it, which makes it easy to tell whether your Service and Ingress are actually working.",
+        lesson: 4,
+      },
+      {
         term: "Container",
         what: "A packaged process: your application plus everything it needs to run.",
         detail:
@@ -165,7 +172,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "For batch work: a migration, a backup, a one-off script. Unlike a Deployment, completion is success rather than failure. A Job tracks how many completions it needs and retries on failure.",
         command: "kubectl get jobs",
-        lesson: 14,
+        lesson: 15,
       },
       {
         term: "CronJob",
@@ -173,7 +180,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "Uses standard Unix cron syntax. It creates a new Job at each scheduled time, and keeps a short history of recent runs so you can see what happened.",
         command: "kubectl get cronjobs",
-        lesson: 14,
+        lesson: 15,
       },
       {
         term: "DaemonSet",
@@ -239,8 +246,9 @@ export const GLOSSARY: GlossaryGroup[] = [
         term: "Ingress",
         what: "The public front door: routes traffic from outside the cluster to a Service inside it.",
         detail:
-          "Handles hostnames, paths and TLS in one place instead of exposing each Service separately, and needs an ingress controller to do the actual work. This is the path your users take to reach your application — quite separate from kubectl, which talks to the API server to control the cluster. The course stops at a ClusterIP Service, reachable from inside the cluster, so you won't create an Ingress here; the map shows where it would sit.",
+          "Handles hostnames, paths and TLS in one place instead of exposing each Service separately. An Ingress is only a rule: an ingress controller has to read it and act on it — Rancher Desktop runs one called Traefik, on port 80 of your machine. This is the path your users take to reach your application, quite separate from kubectl, which talks to the API server to control the cluster.",
         command: "kubectl get ingress",
+        lesson: 9,
       },
     ],
   },
@@ -255,7 +263,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "Key/value pairs you can inject as environment variables or mount as files. The point is that changing a setting shouldn't mean rebuilding and redeploying an image.",
         command: "kubectl get configmaps",
-        lesson: 9,
+        lesson: 10,
       },
       {
         term: "Secret",
@@ -263,21 +271,21 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "Passwords, tokens, keys. Values are base64-encoded, which is encoding and not encryption — real protection comes from encryption at rest and RBAC. Using the Secret type signals intent and keeps values out of most log output.",
         command: "kubectl get secrets",
-        lesson: 10,
+        lesson: 11,
       },
       {
         term: "Volume",
         what: "Storage attached to a Pod and mounted into its containers.",
         detail:
           "A container's own filesystem is wiped when it restarts. A volume survives that. An emptyDir — the simplest kind — still disappears when the whole Pod is deleted.",
-        lesson: 13,
+        lesson: 14,
       },
       {
         term: "emptyDir",
         what: "A scratch volume that lives and dies with the Pod.",
         detail:
           "Created empty when the Pod starts on a node, shared between that Pod's containers, deleted when the Pod is removed. Good for caches and scratch space, useless for anything you need to keep.",
-        lesson: 13,
+        lesson: 14,
       },
       {
         term: "PersistentVolume / PersistentVolumeClaim",
@@ -298,14 +306,14 @@ export const GLOSSARY: GlossaryGroup[] = [
         what: "A periodic check that answers: is this container still working?",
         detail:
           "If it fails repeatedly, the kubelet restarts the container. It's the cure for a process that's technically alive but wedged — a deadlock, an exhausted thread pool.",
-        lesson: 11,
+        lesson: 12,
       },
       {
         term: "Readiness probe",
         what: "A periodic check that answers: can this container take traffic yet?",
         detail:
           "Failing readiness pulls the Pod out of its Service's endpoints but leaves it running. This is what stops requests hitting an app that's still warming up, and what drains traffic from an overloaded one.",
-        lesson: 11,
+        lesson: 12,
       },
       {
         term: "Rolling update",
@@ -313,7 +321,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "The Deployment scales up a new ReplicaSet while scaling down the old one, a few Pods at a time, waiting for new Pods to become ready before continuing.",
         command: "kubectl rollout status deployment/web",
-        lesson: 12,
+        lesson: 13,
       },
       {
         term: "Rollback",
@@ -321,7 +329,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "Each revision keeps its ReplicaSet, so rolling back is just scaling the old one up again. This is why a bad deploy is a minute's problem rather than an afternoon's.",
         command: "kubectl rollout undo deployment/web",
-        lesson: 12,
+        lesson: 13,
       },
       {
         term: "Events",
@@ -329,7 +337,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "Scheduling decisions, image pulls, probe failures, restarts. Shown at the bottom of kubectl describe, and usually where the real answer is when something won't start.",
         command: "kubectl describe pod <name>",
-        lesson: 15,
+        lesson: 16,
       },
       {
         term: "CrashLoopBackOff",
@@ -337,7 +345,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "Kubernetes restarts it with an increasing delay between attempts — the 'backoff'. The status tells you the container starts; the logs tell you why it stops. Read the logs.",
         command: "kubectl logs <name> --previous",
-        lesson: 15,
+        lesson: 16,
       },
       {
         term: "ImagePullBackOff",
@@ -345,7 +353,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         detail:
           "A typo in the image name, a private registry with no credentials, or an image built for a different CPU architecture. There are no logs to read, because the container never started — describe the Pod and read the Events.",
         command: "kubectl describe pod <name>",
-        lesson: 15,
+        lesson: 16,
       },
       {
         term: "Manifest",
@@ -360,7 +368,7 @@ export const GLOSSARY: GlossaryGroup[] = [
         what: "A PagerDuty Runbook Automation agent that runs inside your network.",
         detail:
           "It dials out to your Runbook Automation instance rather than accepting inbound connections, so it can execute automation against systems the SaaS side can't reach directly. The course capstone deploys a real one using a Secret and a Deployment.",
-        lesson: 16,
+        lesson: 17,
       },
     ],
   },

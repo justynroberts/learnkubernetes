@@ -3,13 +3,13 @@ import { NAMESPACE, getResourceJson, listResourcesJson, namespaceExists } from "
 
 export const recap: Lesson = {
   id: "recap",
-  order: 17,
+  order: 18,
   title: "Graduation",
   concept: "Putting it all together",
   focus: "all",
   intro: `
-You've touched Namespaces, Pods, Deployments, Services, ConfigMaps, Secrets, health
-probes, Volumes, Jobs, CronJobs, troubleshooting, and deployed a real Runbook
+You've touched Namespaces, Pods, Deployments, Services, Ingress, ConfigMaps, Secrets,
+health probes, Volumes, Jobs, CronJobs, troubleshooting, and deployed a real Runbook
 Automation runner — the core vocabulary you'll see in almost any real Kubernetes
 cluster, plus one genuine production workload.
 
@@ -34,6 +34,9 @@ during this course is still healthy on your cluster.`,
 
         const svc = await getResourceJson<any>("service", "web-svc");
         checks.push({ label: "web-svc Service", ok: !!svc });
+
+        const ing = await getResourceJson<any>("ingress", "web-ingress");
+        checks.push({ label: "web-ingress Ingress", ok: !!ing });
 
         const cm = await getResourceJson<any>("configmap", "web-config");
         checks.push({ label: "web-config ConfigMap", ok: !!cm });
@@ -99,7 +102,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-readiness",
-          lesson: 11,
+          lesson: 12,
           prompt: "A container's readiness probe starts failing. What does Kubernetes do?",
           options: [
             "Restarts the container immediately",
@@ -127,7 +130,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-emptydir",
-          lesson: 13,
+          lesson: 14,
           prompt: "A Pod has an `emptyDir` volume with data in it. You delete the Pod. What happens to the data?",
           options: [
             "It survives — that's the point of a volume",
@@ -141,7 +144,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-secret",
-          lesson: 10,
+          lesson: 11,
           prompt: "How are Secret values stored by default?",
           options: [
             "Encrypted with a key only the API server holds",
@@ -155,7 +158,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-rollback",
-          lesson: 12,
+          lesson: 13,
           prompt: "What makes `kubectl rollout undo` possible after a bad Deployment update?",
           options: [
             "Kubernetes snapshots the container filesystem before updating",
@@ -179,7 +182,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-troubleshoot",
-          lesson: 15,
+          lesson: 16,
           prompt: "A Pod is stuck in `ImagePullBackOff`. Which command tells you why first?",
           options: [
             "kubectl logs <pod> — read what the container printed",
@@ -193,7 +196,7 @@ during this course is still healthy on your cluster.`,
         },
         {
           id: "q-job",
-          lesson: 14,
+          lesson: 15,
           prompt: "Which workload would you use for a one-off database migration?",
           options: [
             "A Deployment, scaled to 1",

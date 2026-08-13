@@ -1,6 +1,6 @@
 # PagerDuty Kubernetes Academy (101 - Basics)
 
-Learn Kubernetes by actually using it. This is a 17-lesson course that runs in your
+Learn Kubernetes by actually using it. This is an 18-lesson course that runs in your
 browser and works against a real Kubernetes cluster on your own machine — when a
 lesson says "create a Deployment", you create a real one, and the **Validate** button
 checks your real cluster to see whether it worked. Nothing is simulated.
@@ -61,12 +61,15 @@ clears your progress, if you want a clean start.
 
 ## What you'll learn
 
-17 lessons, each with hands-on steps and a quiz:
+18 lessons, each with hands-on steps and a quiz:
 
 Cluster basics · Core Concepts · Namespaces · Pods · Labels & Selectors · Deployments
-· Scaling · Services · ConfigMaps · Secrets · Health Probes · Rolling Updates &
-Rollbacks · Volumes · Jobs & CronJobs · Troubleshooting · a real-world capstone · a
-recap
+· Scaling · Services · Ingress · ConfigMaps · Secrets · Health Probes · Rolling
+Updates & Rollbacks · Volumes · Jobs & CronJobs · Troubleshooting · a real-world
+capstone · a recap
+
+Lesson 9 puts a real Ingress in front of the app, so you finish it by opening
+**http://localhost** and seeing a container in your own cluster answer your browser.
 
 Every lesson opens with a diagram of a cluster, with the piece you're about to work on
 lit up, so you can always see where the thing you're creating actually lives. It's
@@ -87,7 +90,7 @@ top. It's a real terminal on your machine, so you can either click **Run** on a
 lesson's command to send it there, or type commands yourself. Working in your own separate terminal instead works too —
 validation looks at the cluster, not at what you typed.
 
-### About the capstone (lesson 16)
+### About the capstone (lesson 17)
 
 The final project deploys a genuine **PagerDuty Runbook Automation** runner, using
 everything from the course. To do it you'll need access to a Runbook Automation

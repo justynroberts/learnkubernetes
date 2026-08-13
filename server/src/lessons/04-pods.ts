@@ -19,6 +19,12 @@ a Deployment, coming up shortly — for Pods, and let it recreate them as needed
 
 Understanding Pods is still the foundation for everything else, so we'll make one by
 hand first.
+
+The container we'll run is **nginx** (pronounced "engine-x") — a very widely used
+open-source **web server**. A web server's job is to sit and wait for requests and
+send web pages back. It's used throughout this course because it starts in about a
+second, and because later on you'll be able to open it in your own browser and see
+it answer.
 `,
   steps: [
     {

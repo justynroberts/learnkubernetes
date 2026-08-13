@@ -3,7 +3,7 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const configmaps: Lesson = {
   id: "configmaps",
-  order: 9,
+  order: 10,
   title: "ConfigMaps",
   concept: "ConfigMaps",
   focus: "config",

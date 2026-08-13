@@ -14,7 +14,7 @@ const PATCH = JSON.stringify({
 
 export const volumes: Lesson = {
   id: "volumes",
-  order: 13,
+  order: 14,
   title: "Volumes",
   concept: "Volumes",
   focus: "volume",

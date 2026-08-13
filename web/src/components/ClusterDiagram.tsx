@@ -417,13 +417,12 @@ export function ClusterDiagram({ focus, status, interactive = false }: Props) {
             rx="8"
             fill={on("ingress") ? "#07202e" : BASE_FILL}
             stroke={on("ingress") ? TRAFFIC : BASE_STROKE}
-            strokeDasharray="5 3"
           />
           <text x="46" y="373" fontSize="9.5" fontFamily={MONO} fill={on("ingress") ? "#bae6fd" : TEXT} textAnchor="middle">
             Ingress
           </text>
           <text x="46" y="386" fontSize="7.5" fill="#5f7a5b" textAnchor="middle">
-            in production
+            routes / → Service
           </text>
 
           <path

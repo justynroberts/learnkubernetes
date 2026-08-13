@@ -62,6 +62,11 @@ export const FOCUS: Record<ClusterFocus, { regions: Region[]; caption: string }>
     caption:
       "Where your application is actually reachable. Users arrive here — not through the API server, which is for controlling the cluster.",
   },
+  ingress: {
+    regions: ["ingress", "service", "pods"],
+    caption:
+      "The rule that lets traffic in from outside, and the controller that enforces it. This is the path a real user takes to your app.",
+  },
   config: {
     regions: ["config", "pods"],
     caption: "A ConfigMap, injected into the Pod's containers as environment variables or files.",

@@ -8,6 +8,7 @@ export type ClusterFocus =
   | "deployment"
   | "replicas"
   | "service"
+  | "ingress"
   | "config"
   | "secret"
   | "probes"

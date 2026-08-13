@@ -7,15 +7,16 @@ import { labels } from "./05-labels.js";
 import { deployments } from "./06-deployments.js";
 import { scaling } from "./07-scaling.js";
 import { services } from "./08-services.js";
-import { configmaps } from "./09-configmaps.js";
-import { secrets } from "./10-secrets.js";
-import { probes } from "./11-probes.js";
-import { rollouts } from "./12-rollouts.js";
-import { volumes } from "./13-volumes.js";
-import { jobs } from "./14-jobs.js";
-import { troubleshooting } from "./15-troubleshooting.js";
-import { runbookAutomation } from "./16-runbook-automation.js";
-import { recap } from "./17-recap.js";
+import { ingress } from "./09-ingress.js";
+import { configmaps } from "./10-configmaps.js";
+import { secrets } from "./11-secrets.js";
+import { probes } from "./12-probes.js";
+import { rollouts } from "./13-rollouts.js";
+import { volumes } from "./14-volumes.js";
+import { jobs } from "./15-jobs.js";
+import { troubleshooting } from "./16-troubleshooting.js";
+import { runbookAutomation } from "./17-runbook-automation.js";
+import { recap } from "./18-recap.js";
 
 export const LESSONS: Lesson[] = [
   intro,
@@ -26,6 +27,7 @@ export const LESSONS: Lesson[] = [
   deployments,
   scaling,
   services,
+  ingress,
   configmaps,
   secrets,
   probes,

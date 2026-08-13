@@ -18,7 +18,7 @@ const SIDEBAR_KEY = "lk-sidebar-collapsed-v1";
 const TOUR_STEPS: TourStep[] = [
   {
     title: "Welcome to Kubernetes 101",
-    body: "17 lessons that run against a real Kubernetes cluster on your own machine — nothing here is simulated. Let's spend thirty seconds on where everything is.",
+    body: "18 lessons that run against a real Kubernetes cluster on your own machine — nothing here is simulated. Let's spend thirty seconds on where everything is.",
   },
   {
     selector: '[data-tour="brand"]',

@@ -3,7 +3,7 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const secrets: Lesson = {
   id: "secrets",
-  order: 10,
+  order: 11,
   title: "Secrets",
   concept: "Secrets",
   focus: "secret",

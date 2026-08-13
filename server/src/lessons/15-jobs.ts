@@ -3,7 +3,7 @@ import { NAMESPACE, getResourceJson } from "../kube.js";
 
 export const jobs: Lesson = {
   id: "jobs",
-  order: 14,
+  order: 15,
   title: "Jobs & CronJobs",
   concept: "Jobs and CronJobs",
   focus: "job",

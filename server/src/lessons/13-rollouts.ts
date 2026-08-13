@@ -3,7 +3,7 @@ import { NAMESPACE, getResourceJson, kubectl } from "../kube.js";
 
 export const rollouts: Lesson = {
   id: "rollouts",
-  order: 12,
+  order: 13,
   title: "Rolling Updates & Rollbacks",
   concept: "Rolling updates and rollbacks",
   focus: "rollout",

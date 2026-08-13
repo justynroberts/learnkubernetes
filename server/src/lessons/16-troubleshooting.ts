@@ -9,7 +9,7 @@ function isBroken(pod: any): boolean {
 
 export const troubleshooting: Lesson = {
   id: "troubleshooting",
-  order: 15,
+  order: 16,
   title: "Troubleshooting",
   concept: "Diagnosing broken workloads",
   focus: "troubleshoot",
