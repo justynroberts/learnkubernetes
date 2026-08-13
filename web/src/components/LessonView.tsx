@@ -303,7 +303,9 @@ export function LessonView({
           return lesson.steps.map((step, i) => {
             const done = isStepDone(lesson.id, step.id);
             const isActive = i === activeIndex;
-            const locked = i > activeIndex;
+            // `&& !done` matters for progress saved before steps were revealed
+            // one at a time: a finished step should never read as locked.
+            const locked = i > activeIndex && !done;
 
             if (locked) {
               return (

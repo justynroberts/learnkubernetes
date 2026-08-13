@@ -127,10 +127,12 @@ export async function currentNodeInfo(): Promise<{ name: string; version: string
 
 /**
  * Applies a learner-edited YAML manifest via `kubectl apply -f -`, piped over
- * stdin. Always scoped to the training namespace with `-n`, so even a pasted
- * manifest (e.g. copied straight from Runbook Automation's UI) can't land
- * outside it — kubectl errors rather than silently applying elsewhere if the
- * manifest's own `metadata.namespace` conflicts.
+ * stdin. Scoped to the training namespace with `-n`, so a pasted manifest (e.g.
+ * copied straight from Runbook Automation's UI) can't land in another
+ * namespace — kubectl errors rather than silently applying elsewhere if the
+ * manifest's own `metadata.namespace` conflicts. Note this bounds namespaced
+ * objects only: a cluster-scoped kind in the pasted YAML is still created
+ * cluster-wide, the same as running kubectl apply yourself would.
  */
 export function applyManifest(yaml: string, namespace: string = NAMESPACE): Promise<KubectlResult> {
   return new Promise((resolve) => {
@@ -146,8 +148,19 @@ export function applyManifest(yaml: string, namespace: string = NAMESPACE): Prom
   });
 }
 
+/**
+ * Namespaces this app must never delete, however it has been configured. The
+ * reset button is one click behind a confirm dialog, and TRAINING_NAMESPACE is
+ * just an environment variable — a typo there shouldn't be able to take out
+ * kube-system.
+ */
+const PROTECTED_NAMESPACES = new Set(["default", "kube-system", "kube-public", "kube-node-lease"]);
+
 /** Deletes and recreates the training namespace, wiping all lesson resources. */
 export async function resetNamespace(name: string = NAMESPACE): Promise<void> {
+  if (PROTECTED_NAMESPACES.has(name)) {
+    throw new Error(`Refusing to reset the "${name}" namespace — set TRAINING_NAMESPACE to a namespace of your own.`);
+  }
   await kubectl(["delete", "namespace", name, "--ignore-not-found", "--wait=true", "--timeout=60s"]);
   await kubectl(["create", "namespace", name]);
 }

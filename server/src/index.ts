@@ -16,9 +16,36 @@ import {
 } from "./kube.js";
 
 const PORT = Number(process.env.PORT ?? 4000);
+/**
+ * Loopback only. This server runs `kubectl` against your cluster and hands out
+ * a real shell over /pty, so it must not be reachable from the network — on a
+ * shared or café wifi, binding 0.0.0.0 would offer both to anyone on it.
+ */
+const HOST = process.env.HOST ?? "127.0.0.1";
+
+/**
+ * The only origins allowed to drive this server: the course itself, running on
+ * this machine. Without this, any page you happen to have open could POST
+ * manifests to your cluster, or open the terminal socket and run commands as
+ * you — WebSockets ignore CORS, so /pty needs the check enforced by hand.
+ */
+const ALLOWED_ORIGINS = new Set([
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  `http://localhost:${PORT}`,
+  `http://127.0.0.1:${PORT}`,
+]);
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin(origin, cb) {
+      // No Origin header means a non-browser client (curl, the app's own
+      // tooling); the loopback bind already limits those to this machine.
+      cb(null, !origin || ALLOWED_ORIGINS.has(origin));
+    },
+  }),
+);
 app.use(express.json());
 
 app.get("/api/status", async (_req, res) => {
@@ -121,16 +148,28 @@ app.post("/api/manifest/apply", async (req, res) => {
 });
 
 app.post("/api/reset", async (_req, res) => {
-  await resetNamespace();
-  res.json({ ok: true });
+  try {
+    await resetNamespace();
+    res.json({ ok: true });
+  } catch (err: any) {
+    res.status(400).json({ ok: false, error: err?.message ?? String(err) });
+  }
 });
 
 const httpServer = createServer(app);
-const wss = new WebSocketServer({ server: httpServer, path: "/pty" });
+const wss = new WebSocketServer({
+  server: httpServer,
+  path: "/pty",
+  // This socket is a shell. A browser always sends Origin, so any page trying
+  // to open it from elsewhere is turned away here.
+  verifyClient: ({ origin }: { origin: string }) => !origin || ALLOWED_ORIGINS.has(origin),
+});
 wss.on("connection", (ws) => attachPty(ws));
 
 Promise.all([ensureNamespace(), ensureKubeContext()]).finally(() => {
-  httpServer.listen(PORT, () => {
-    console.log(`learnkubernetes server listening on :${PORT} (context=${KUBE_CONTEXT}, namespace=${NAMESPACE})`);
+  httpServer.listen(PORT, HOST, () => {
+    console.log(
+      `learnkubernetes server listening on ${HOST}:${PORT} (context=${KUBE_CONTEXT}, namespace=${NAMESPACE})`,
+    );
   });
 });

@@ -52,6 +52,20 @@ open http://localhost:5173.
 
 On Windows, run all of this inside WSL. On macOS and Linux it works as-is.
 
+## Is this safe to run?
+
+The course only touches its own corner of your cluster, and only from your own
+machine:
+
+- Everything it creates goes in one namespace, `k8s-academy`, and the reset button
+  refuses to touch `default`, `kube-system` or the other built-in namespaces however
+  it's configured.
+- The server listens on `127.0.0.1` only, so nothing else on your network can reach
+  it — it runs `kubectl` against your cluster and provides the in-browser terminal,
+  neither of which should be exposed. Set `HOST` if you deliberately need otherwise.
+- Only the course's own page may talk to it. Other websites you have open can't
+  reach the API or the terminal socket.
+
 ## What the course does to your computer
 
 Everything you create during the lessons goes into its own separate area of the
