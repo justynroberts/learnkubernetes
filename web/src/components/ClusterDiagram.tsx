@@ -22,6 +22,9 @@ const BASE_FILL = "#131b12";
 const TEXT = "#94a3b8";
 const TEXT_BRIGHT = "#e2e8f0";
 const MONO = "var(--font-mono)";
+/** App traffic is deliberately a different colour from the green control path:
+    users reaching your app is a different thing from kubectl driving the API. */
+const TRAFFIC = "#38bdf8";
 
 interface Props {
   focus: ClusterFocus;
@@ -107,6 +110,9 @@ export function ClusterDiagram({ focus, status, interactive = false }: Props) {
           </marker>
           <marker id="arrow-dim" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
             <path d="M0,0 L10,5 L0,10 z" fill="#3f5c3b" />
+          </marker>
+          <marker id="arrow-traffic" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M0,0 L10,5 L0,10 z" fill={TRAFFIC} />
           </marker>
         </defs>
 
@@ -377,6 +383,61 @@ export function ClusterDiagram({ focus, status, interactive = false }: Props) {
           )}
         </g>
 
+
+        {/* ---- how users actually reach the application ---- */}
+        <g {...group("ingress")}>
+          <rect
+            x="8"
+            y="298"
+            width="76"
+            height="40"
+            rx="8"
+            fill={on("ingress") ? "#07202e" : BASE_FILL}
+            stroke={on("ingress") ? TRAFFIC : BASE_STROKE}
+          />
+          <text x="46" y="317" fontSize="11" fill={on("ingress") ? "#bae6fd" : TEXT} textAnchor="middle">
+            users
+          </text>
+          <text x="46" y="330" fontSize="8" fill="#5f7a5b" textAnchor="middle">
+            of your app
+          </text>
+
+          <path
+            d="M26,338 L26,352"
+            stroke={on("ingress") ? TRAFFIC : "#3f5c3b"}
+            strokeWidth="1.4"
+            markerEnd={on("ingress") ? "url(#arrow-traffic)" : "url(#arrow-dim)"}
+          />
+
+          <rect
+            x="8"
+            y="356"
+            width="76"
+            height="40"
+            rx="8"
+            fill={on("ingress") ? "#07202e" : BASE_FILL}
+            stroke={on("ingress") ? TRAFFIC : BASE_STROKE}
+            strokeDasharray="5 3"
+          />
+          <text x="46" y="373" fontSize="9.5" fontFamily={MONO} fill={on("ingress") ? "#bae6fd" : TEXT} textAnchor="middle">
+            Ingress
+          </text>
+          <text x="46" y="386" fontSize="7.5" fill="#5f7a5b" textAnchor="middle">
+            in production
+          </text>
+
+          <path
+            d="M84,376 C 96,376 98,379 108,379"
+            fill="none"
+            stroke={on("ingress") ? TRAFFIC : "#3f5c3b"}
+            strokeWidth="1.4"
+            markerEnd={on("ingress") ? "url(#arrow-traffic)" : "url(#arrow-dim)"}
+          />
+          <text x="36" y="350" fontSize="7.5" fill={on("ingress") ? TRAFFIC : "#5f7a5b"}>
+            app traffic
+          </text>
+        </g>
+
         {/* ---- service: one virtual IP in front of every matching Pod ---- */}
         <g {...group("service")}>
           {[155, 250, 345, 484, 637].map((cx) => (
@@ -397,8 +458,11 @@ export function ClusterDiagram({ focus, status, interactive = false }: Props) {
             fill={fill("service")}
             stroke={stroke("service")}
           />
-          <text x="122" y="383" fontSize="9.5" fontFamily={MONO} fill={label("service")}>
+          <text x="122" y="378" fontSize="9.5" fontFamily={MONO} fill={label("service")}>
             Service web-svc
+          </text>
+          <text x="122" y="389" fontSize="8" fill={on("service") ? TRAFFIC : "#5f7a5b"}>
+            where your application is reachable
           </text>
           <text x="684" y="383" fontSize="8.5" fill="#5f7a5b" textAnchor="end">
             stable ClusterIP + DNS · load-balances to every matching Pod, on any node

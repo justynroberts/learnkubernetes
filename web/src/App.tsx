@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { api } from "./lib/api";
 import type { ClusterStatus, LessonDetail, LessonSummary } from "./types";
 import { useProgress } from "./hooks/useProgress";
@@ -12,6 +13,7 @@ import { GlossaryPanel } from "./components/GlossaryPanel";
 import { Tour, type TourStep } from "./components/Tour";
 
 const TOUR_SEEN_KEY = "lk-tour-seen-v2";
+const SIDEBAR_KEY = "lk-sidebar-collapsed-v1";
 
 const TOUR_STEPS: TourStep[] = [
   {
@@ -69,6 +71,9 @@ export default function App() {
   const [manifestEditorOpen, setManifestEditorOpen] = useState(false);
   const [manifestEditorLink, setManifestEditorLink] = useState<LinkedStep | null>(null);
   const [glossaryOpen, setGlossaryOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(
+    () => localStorage.getItem(SIDEBAR_KEY) === "1",
+  );
   const [tourActive, setTourActive] = useState(false);
 
   const { isStepDone, markStep, lessonProgress, reset } = useProgress();
@@ -155,6 +160,13 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeLesson?.id]);
 
+  function toggleSidebar() {
+    setSidebarCollapsed((c) => {
+      localStorage.setItem(SIDEBAR_KEY, c ? "0" : "1");
+      return !c;
+    });
+  }
+
   function goToLessonByOrder(order: number) {
     const target = lessons.find((l) => l.order === order);
     if (target) setActiveId(target.id);
@@ -175,6 +187,7 @@ export default function App() {
     }
     await api.reset();
     reset();
+    localStorage.removeItem(TOUR_SEEN_KEY);
     setDetailCache({});
     window.location.reload();
   }
@@ -199,15 +212,21 @@ export default function App() {
         onReset={handleReset}
       />
       <div className="flex min-h-0 flex-1">
-        <div className="w-64 shrink-0">
+        <motion.div
+          className="shrink-0"
+          animate={{ width: sidebarCollapsed ? 56 : 256 }}
+          transition={{ type: "tween", duration: 0.2, ease: "easeInOut" }}
+        >
           <Sidebar
             lessons={lessons}
             activeId={activeId}
             onSelect={setActiveId}
             progressFor={lessonProgress}
             stepCounts={stepCounts}
+            collapsed={sidebarCollapsed}
+            onToggleCollapsed={toggleSidebar}
           />
-        </div>
+        </motion.div>
 
         <div className="flex min-w-0 flex-1 flex-col">
           <div className="min-h-0 flex-1 overflow-y-auto">

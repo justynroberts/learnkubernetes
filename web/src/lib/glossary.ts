@@ -237,9 +237,9 @@ export const GLOSSARY: GlossaryGroup[] = [
       },
       {
         term: "Ingress",
-        what: "Routes HTTP traffic from outside the cluster to Services inside it.",
+        what: "The public front door: routes traffic from outside the cluster to a Service inside it.",
         detail:
-          "Handles hostnames, paths and TLS in one place, instead of exposing each Service separately. Needs an ingress controller running in the cluster to do the actual work. Not covered in this course.",
+          "Handles hostnames, paths and TLS in one place instead of exposing each Service separately, and needs an ingress controller to do the actual work. This is the path your users take to reach your application — quite separate from kubectl, which talks to the API server to control the cluster. The course stops at a ClusterIP Service, reachable from inside the cluster, so you won't create an Ingress here; the map shows where it would sit.",
         command: "kubectl get ingress",
       },
     ],

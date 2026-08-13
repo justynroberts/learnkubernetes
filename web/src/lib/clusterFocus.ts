@@ -23,6 +23,7 @@ export type Region =
   | "secret"
   | "volume"
   | "service"
+  | "ingress"
   | "probes"
   | "job"
   | "external";
@@ -57,8 +58,9 @@ export const FOCUS: Record<ClusterFocus, { regions: Region[]; caption: string }>
     caption: "More replicas means more Pods, spread across available nodes — all onto node 1 here.",
   },
   service: {
-    regions: ["service", "pods"],
-    caption: "A virtual IP and DNS name in front of every Pod matching its selector, on any node.",
+    regions: ["service", "ingress", "pods"],
+    caption:
+      "Where your application is actually reachable. Users arrive here — not through the API server, which is for controlling the cluster.",
   },
   config: {
     regions: ["config", "pods"],
@@ -135,6 +137,7 @@ export const REGION_TERMS: Record<Region, string[]> = {
   secret: ["Secret"],
   volume: ["Volume", "emptyDir"],
   service: ["Service", "Endpoints"],
+  ingress: ["Ingress", "Service"],
   probes: ["Liveness probe", "Readiness probe"],
   job: ["Job", "CronJob"],
   external: ["Runner"],
